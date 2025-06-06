@@ -13,9 +13,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Richtigen Pfad zur cards.json setzen (jetzt im eigenen Repo unter data/cards.json)
+cards_path = os.path.join(os.path.dirname(__file__), 'data', 'cards.json')
+
+if not os.path.exists(cards_path):
+    raise FileNotFoundError(f"cards.json not found at {cards_path}")
+
 # Karten-Daten laden (einmalig beim Start)
-cards_path = os.path.join(os.path.dirname(
-    __file__), 'data-source', 'data', 'cards.json')
 with open(cards_path, encoding='utf-8') as f:
     cards = json.load(f)
 
