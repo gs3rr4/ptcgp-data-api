@@ -12,7 +12,26 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 - **Status**: Beta
 
 ---
+## Lokale Entwicklung
 
+1. Virtuelle Umgebung erstellen und aktivieren
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+2. Abhängigkeiten installieren
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. API lokal starten
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+
+---
 ## Endpunkte
 
 ### Alle Karten abrufen
