@@ -19,17 +19,14 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
    python3 -m venv .venv
    source .venv/bin/activate
    ```
-
 2. Abhängigkeiten installieren
    ```bash
    pip install -r requirements.txt
    ```
-
 3. API lokal starten
    ```bash
    uvicorn main:app --reload
    ```
-
 
 ---
 ## Endpunkte
@@ -39,8 +36,9 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 `GET /cards`
 
 - **Antwort:** Array mit allen Karten als JSON-Objekte
+- Optionaler Query-Parameter `lang` wählt die Sprache für das Kartenbild (Standard: `en`)
 
-**Beispiel:**  
+**Beispiel:**
 `https://ptcgp-api-production.up.railway.app/cards`
 
 ---
@@ -49,10 +47,11 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 `GET /cards/{card_id}`
 
-- `{card_id}` ist die eindeutige ID der Karte (z. B. “002”)
-- **Antwort:** JSON-Objekt der Karte
+- `{card_id}` ist die globale ID der Karte (z. B. `002`)
+- Optionaler Query-Parameter `lang` für das Kartenbild
+- **Antwort:** JSON-Objekt der Karte inklusive Set-Informationen und Bild-URL
 
-**Beispiel:**  
+**Beispiel:**
 `https://ptcgp-api-production.up.railway.app/cards/002`
 
 ---
@@ -60,25 +59,23 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 ## Beispielantwort
 
 ```json
-[
-  {
-    "id": "002",
+{
+  "id": "002",
+  "name": {
+    "en": "Beispielkarte",
+    "de": "Beispielkarte"
+  },
+  "set": {
+    "id": "A2a",
     "name": {
-      "en": "Burmy",
-      "de": "Burmy"
-      // weitere Sprachen…
+      "en": "Triumphant Light",
+      "de": "Licht des Triumphs"
     },
-    "set": {
-      "id": "A2a",
-      "name": {
-        "en": "Triumphant Light",
-        "de": "Licht des Triumphs"
-      }
-    }
-    // weitere Felder wie illustrator, rarity, attacks, usw.
-  }
-  // weitere Karten
-]
+    "releaseDate": "2025-02-28"
+  },
+  "image": "https://assets.tcgdex.net/en/tcgp/A2a/002/high.webp"
+  // weitere Felder wie illustrator, rarity, attacks, ...
+}
 ```
 
 ---
