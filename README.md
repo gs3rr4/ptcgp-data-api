@@ -36,7 +36,9 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 `GET /cards`
 
 - **Antwort:** Array mit allen Karten als JSON-Objekte
-- Optionaler Query-Parameter `lang` wählt die Sprache für das Kartenbild (Standard: `en`)
+- Optionaler Query-Parameter `lang` bestimmt Sprache von Kartentext und Bild (Standard: `de`)
+- Ohne Angabe wird nur Deutsch zurückgegeben.
+- Beispiel für Englisch: `/cards?lang=en`
 
 **Beispiel:**
 `https://ptcgp-api-production.up.railway.app/cards`
@@ -48,8 +50,10 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 `GET /cards/{card_id}`
 
 - `{card_id}` ist die globale ID der Karte (z. B. `002`)
-- Optionaler Query-Parameter `lang` für das Kartenbild
+- Optionaler Query-Parameter `lang` wählt Sprache von Text und Bild
 - **Antwort:** JSON-Objekt der Karte inklusive Set-Informationen und Bild-URL
+- Ohne Angabe wird nur Deutsch ausgegeben.
+- Beispiel für Englisch: `/cards/{card_id}?lang=en`
 
 **Beispiel:**
 `https://ptcgp-api-production.up.railway.app/cards/002`
@@ -58,26 +62,20 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 ## Beispielantwort
 
+
 ```json
 {
   "id": "002",
-  "name": {
-    "en": "Beispielkarte",
-    "de": "Beispielkarte"
-  },
+  "name": "Beispielkarte",
   "set": {
     "id": "A2a",
-    "name": {
-      "en": "Triumphant Light",
-      "de": "Licht des Triumphs"
-    },
+    "name": "Licht des Triumphs",
     "releaseDate": "2025-02-28"
   },
-  "image": "https://assets.tcgdex.net/en/tcgp/A2a/002/high.webp"
+  "image": "https://assets.tcgdex.net/de/tcgp/A2a/002/high.webp"
   // weitere Felder wie illustrator, rarity, attacks, ...
 }
 ```
-
 ---
 
 ## Nutzung

@@ -42,6 +42,26 @@ for idx, card in enumerate(_raw_cards, start=1):
     _cards.append(card_obj)
 
 
+# Sprachenliste für Übersetzungen
+_LANGUAGES = {"de", "en", "fr", "es", "it", "pt-br", "ko"}
+
+
+def _filter_language(data, lang: str, default_lang: str = "de"):
+    """Reduziert übersetzte Felder auf eine Sprache."""
+    if isinstance(data, list):
+        return [_filter_language(i, lang, default_lang) for i in data]
+    if isinstance(data, dict):
+        lang_keys = set(data.keys()) & _LANGUAGES
+        if lang_keys:
+            if lang in data:
+                return _filter_language(data[lang], lang, default_lang)
+            if default_lang in data:
+                return _filter_language(data[default_lang], lang, default_lang)
+            return _filter_language(data[next(iter(lang_keys))], lang, default_lang)
+        return {k: _filter_language(v, lang, default_lang) for k, v in data.items()}
+    return data
+
+
 def _image_url(lang: str, set_id: str, local_id: str) -> str:
     base = f"https://assets.tcgdex.net/{lang}/tcgp/{set_id}/{local_id}"
     high = f"{base}/high.webp"
@@ -55,24 +75,24 @@ def _image_url(lang: str, set_id: str, local_id: str) -> str:
 
 
 @app.get("/cards")
-def get_cards(lang: str = "en"):
+def get_cards(lang: str = "de"):
     result = []
     for card in _cards:
         c = card.copy()
         c["set"] = _sets.get(c["set_id"])
         c["image"] = f"https://assets.tcgdex.net/{lang}/tcgp/{c['set_id']}/{c['_local_id']}/high.webp"
         del c["_local_id"]
-        result.append(c)
+        result.append(_filter_language(c, lang))
     return result
 
 
 @app.get("/cards/{card_id}")
-def get_card(card_id: str, lang: str = "en"):
+def get_card(card_id: str, lang: str = "de"):
     for card in _cards:
         if card["id"] == card_id:
             c = card.copy()
             c["set"] = _sets.get(c["set_id"])
             c["image"] = _image_url(lang, c["set_id"], c["_local_id"])
             del c["_local_id"]
-            return c
+            return _filter_language(c, lang)
     raise HTTPException(status_code=404, detail="Card not found")
