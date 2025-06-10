@@ -61,6 +61,9 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 - **Antwort:** JSON-Objekt der Karte inklusive Set-Informationen und Bild-URL
 - Ohne Angabe wird nur Deutsch ausgegeben.
 - Beispiel für Englisch: `/cards/{card_id}?lang=en`
+- Das hochauflösende Bild (`high.webp`) wird nur dann verwendet, wenn es existiert.
+  Das Ergebnis der ersten Prüfung wird zwischengespeichert, um weitere Anfragen
+  schneller zu beantworten.
 
 **Beispiel:**
 `https://ptcgp-api-production.up.railway.app/cards/002`

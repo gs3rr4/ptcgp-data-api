@@ -5,6 +5,8 @@ import json
 import os
 import requests
 
+_image_cache = {}
+
 app = FastAPI()
 
 # CORS erlauben (z.B. für die Mobile-App)
@@ -96,12 +98,14 @@ def _filter_language(data, lang: str, default_lang: str = "de"):
 def _image_url(lang: str, set_id: str, local_id: str) -> str:
     base = f"https://assets.tcgdex.net/{lang}/tcgp/{set_id}/{local_id}"
     high = f"{base}/high.webp"
-    try:
-        resp = requests.head(high)
-        if resp.status_code == 200:
-            return high
-    except Exception:
-        pass
+    if high not in _image_cache:
+        try:
+            resp = requests.head(high)
+            _image_cache[high] = resp.status_code == 200
+        except Exception:
+            _image_cache[high] = False
+    if _image_cache[high]:
+        return high
     return f"{base}/low.webp"
 
 
