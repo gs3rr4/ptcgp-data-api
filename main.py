@@ -115,6 +115,7 @@ def get_cards(
     set_id: Optional[str] = None,
     type_: Optional[str] = Query(None, alias="type"),
     rarity: Optional[str] = None,
+    category: Optional[str] = None,
     hp_min: Optional[int] = None,
     hp_max: Optional[int] = None,
     limit: Optional[int] = None,
@@ -131,6 +132,8 @@ def get_cards(
             if type_ not in card_types and type_ != trainer_type:
                 continue
         if rarity and card.get("rarity") != rarity:
+            continue
+        if category and card.get("category") != category:
             continue
         if hp_min is not None and int(card.get("hp", 0)) < hp_min:
             continue
