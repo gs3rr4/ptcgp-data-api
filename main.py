@@ -43,8 +43,38 @@ for idx, card in enumerate(_raw_cards, start=1):
     _cards.append(card_obj)
 
 
+# Suche-Index vorbereiten
+def _build_search_index(cards):
+    index = {}
+    for card in cards:
+        per_lang = {}
+        for lang in _LANGUAGES:
+            name_txt = str(_filter_language(card.get("name", ""), lang)).lower()
+            abil_parts = []
+            for ab in card.get("abilities", []):
+                abil_parts.append(str(_filter_language(ab.get("name", ""), lang)).lower())
+                abil_parts.append(str(_filter_language(ab.get("effect", ""), lang)).lower())
+            abil_txt = " ".join(abil_parts)
+            atk_parts = []
+            for at in card.get("attacks", []):
+                atk_parts.append(str(_filter_language(at.get("name", ""), lang)).lower())
+                atk_parts.append(str(_filter_language(at.get("effect", ""), lang)).lower())
+            atk_txt = " ".join(atk_parts)
+            per_lang[lang] = {
+                "name": name_txt,
+                "abilities": abil_txt,
+                "attacks": atk_txt,
+                "full": " ".join([name_txt, abil_txt, atk_txt]),
+            }
+        index[card["id"]] = per_lang
+    return index
+
+
+
 # Sprachenliste für Übersetzungen
 _LANGUAGES = {"de", "en", "fr", "es", "it", "pt-br", "ko"}
+
+_search_index = _build_search_index(_cards)
 
 
 def _filter_language(data, lang: str, default_lang: str = "de"):
@@ -117,17 +147,30 @@ def get_cards(
 
 
 @app.get("/cards/search")
-def search_cards(q: str, lang: str = "de"):
+def search_cards(
+    q: str,
+    lang: str = "de",
+    fields: Optional[str] = Query(
+        None,
+        description="Komma-getrennte Liste der Felder: name, abilities, attacks",
+    ),
+):
     results = []
     q_lower = q.lower()
+    requested = None
+    if fields:
+        requested = [f.strip() for f in fields.split(",") if f.strip() in {"name", "abilities", "attacks"}]
     for card in _cards:
-        c = card.copy()
-        c["set"] = _sets.get(c["set_id"])
-        c["image"] = f"https://assets.tcgdex.net/{lang}/tcgp/{c['set_id']}/{c['_local_id']}/high.webp"
-        del c["_local_id"]
-        filtered = _filter_language(c, lang)
-        if q_lower in json.dumps(filtered, ensure_ascii=False).lower():
-            results.append(filtered)
+        search_data = _search_index.get(card["id"], {}).get(lang, {})
+        text = search_data.get("full", "") if not requested else " ".join(
+            search_data.get(f, "") for f in requested
+        )
+        if q_lower in text:
+            c = card.copy()
+            c["set"] = _sets.get(c["set_id"])
+            c["image"] = f"https://assets.tcgdex.net/{lang}/tcgp/{c['set_id']}/{c['_local_id']}/high.webp"
+            del c["_local_id"]
+            results.append(_filter_language(c, lang))
     return results
 
 
