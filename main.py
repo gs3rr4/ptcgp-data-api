@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional
 import json
 import os
 import requests
@@ -75,14 +76,43 @@ def _image_url(lang: str, set_id: str, local_id: str) -> str:
 
 
 @app.get("/cards")
-def get_cards(lang: str = "de"):
+def get_cards(
+    lang: str = "de",
+    set_id: Optional[str] = None,
+    type_: Optional[str] = Query(None, alias="type"),
+    rarity: Optional[str] = None,
+    hp_min: Optional[int] = None,
+    hp_max: Optional[int] = None,
+    limit: Optional[int] = None,
+    offset: int = 0,
+):
+    """Alle Karten mit optionalen Filtern abrufen."""
     result = []
     for card in _cards:
+        if set_id and card.get("set_id") != set_id:
+            continue
+        if type_:
+            card_types = card.get("types", [])
+            trainer_type = card.get("trainerType")
+            if type_ not in card_types and type_ != trainer_type:
+                continue
+        if rarity and card.get("rarity") != rarity:
+            continue
+        if hp_min is not None and int(card.get("hp", 0)) < hp_min:
+            continue
+        if hp_max is not None and int(card.get("hp", 0)) > hp_max:
+            continue
+
         c = card.copy()
         c["set"] = _sets.get(c["set_id"])
         c["image"] = f"https://assets.tcgdex.net/{lang}/tcgp/{c['set_id']}/{c['_local_id']}/high.webp"
         del c["_local_id"]
         result.append(_filter_language(c, lang))
+
+    if offset:
+        result = result[offset:]
+    if limit is not None:
+        result = result[:limit]
     return result
 
 
