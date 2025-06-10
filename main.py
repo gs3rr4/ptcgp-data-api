@@ -111,3 +111,18 @@ def get_card(card_id: str, lang: str = "de"):
             del c["_local_id"]
             return _filter_language(c, lang)
     raise HTTPException(status_code=404, detail="Card not found")
+
+
+@app.get("/sets")
+def get_sets(lang: str = "de"):
+    """Liste aller Sets zurückgeben."""
+    return [_filter_language(s, lang) for s in _sets.values()]
+
+
+@app.get("/sets/{set_id}")
+def get_set(set_id: str, lang: str = "de"):
+    """Ein einzelnes Set abrufen."""
+    s = _sets.get(set_id)
+    if s is None:
+        raise HTTPException(status_code=404, detail="Set not found")
+    return _filter_language(s, lang)
