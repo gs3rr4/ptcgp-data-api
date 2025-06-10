@@ -73,6 +73,32 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 ---
 
+### Alle Sets abrufen
+
+`GET /sets`
+
+- Optionaler Query-Parameter `lang` bestimmt die Sprache der Setnamen (Standard: `de`)
+- **Antwort:** Array mit allen Sets als JSON-Objekte
+
+**Beispiel:**
+`https://ptcgp-api-production.up.railway.app/sets`
+
+---
+
+### Einzelnes Set abrufen
+
+`GET /sets/{set_id}`
+
+- `{set_id}` ist die ID des Sets (z. B. `A2a`)
+- Optionaler Query-Parameter `lang` wählt die Sprache der Felder
+- **Antwort:** JSON-Objekt des Sets
+- Bei unbekannter ID wird `404` zurückgegeben.
+
+**Beispiel:**
+`https://ptcgp-api-production.up.railway.app/sets/A2a`
+
+---
+
 ## Beispielantwort
 
 
