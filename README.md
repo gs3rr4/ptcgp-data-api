@@ -60,6 +60,19 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 ---
 
+### Karten suchen
+
+`GET /cards/search`
+
+- Query-Parameter `q` legt den Suchbegriff fest
+- Optionaler Query-Parameter `lang` bestimmt Sprache von Text und Bild (Standard: `de`)
+- **Antwort:** Array mit Karten, die den Suchbegriff enthalten
+
+**Beispiel:**
+`GET /cards/search?q=Gift&lang=de`
+
+---
+
 ## Beispielantwort
 
 
