@@ -86,6 +86,21 @@ def get_cards(lang: str = "de"):
     return result
 
 
+@app.get("/cards/search")
+def search_cards(q: str, lang: str = "de"):
+    results = []
+    q_lower = q.lower()
+    for card in _cards:
+        c = card.copy()
+        c["set"] = _sets.get(c["set_id"])
+        c["image"] = f"https://assets.tcgdex.net/{lang}/tcgp/{c['set_id']}/{c['_local_id']}/high.webp"
+        del c["_local_id"]
+        filtered = _filter_language(c, lang)
+        if q_lower in json.dumps(filtered, ensure_ascii=False).lower():
+            results.append(filtered)
+    return results
+
+
 @app.get("/cards/{card_id}")
 def get_card(card_id: str, lang: str = "de"):
     for card in _cards:
