@@ -35,10 +35,17 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 `GET /cards`
 
-- **Antwort:** Array mit allen Karten als JSON-Objekte
+- **Antwort:** Array mit Karten als JSON-Objekte
 - Optionaler Query-Parameter `lang` bestimmt Sprache von Kartentext und Bild (Standard: `de`)
+- Weitere optionale Filter:
+  - `set_id` – nur Karten eines bestimmten Sets
+  - `type` – Pokémon-Typ oder Trainer-Typ
+  - `rarity` – Seltenheit der Karte
+  - `hp_min` / `hp_max` – minimale bzw. maximale KP
+  - `limit` & `offset` – Pagination der Ergebnisse
 - Ohne Angabe wird nur Deutsch zurückgegeben.
 - Beispiel für Englisch: `/cards?lang=en`
+- Beispiel mit Filtern: `/cards?set_id=A2a&type=Metal&hp_min=100&limit=10`
 
 **Beispiel:**
 `https://ptcgp-api-production.up.railway.app/cards`
@@ -114,4 +121,4 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 ---
 
-**Letztes Update:** 2025-06-06
+**Letztes Update:** 2025-06-07
