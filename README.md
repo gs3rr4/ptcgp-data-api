@@ -42,6 +42,7 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
   - `type` – Pokémon-Typ oder Trainer-Typ
   - `rarity` – Seltenheit der Karte
   - `category` – Kategorie der Karte (z. B. `Pokemon` oder `Trainer`)
+  - `booster` – Name des Boosters (muss im Feld `boosters` der Karte enthalten sein)
   - `hp_min` / `hp_max` – minimale bzw. maximale KP
   - `limit` & `offset` – Pagination der Ergebnisse
 - Ohne Angabe wird nur Deutsch zurückgegeben.
