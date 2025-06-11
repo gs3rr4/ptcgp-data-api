@@ -43,10 +43,11 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
   - `rarity` – Seltenheit der Karte
   - `category` – Kategorie der Karte (z. B. `Pokemon` oder `Trainer`)
   - `hp_min` / `hp_max` – minimale bzw. maximale KP
+  - `retreat_min` / `retreat_max` – minimale bzw. maximale Rückzugskosten
   - `limit` & `offset` – Pagination der Ergebnisse
 - Ohne Angabe wird nur Deutsch zurückgegeben.
 - Beispiel für Englisch: `/cards?lang=en`
-- Beispiel mit Filtern: `/cards?set_id=A2a&type=Metal&category=Pokemon&hp_min=100&limit=10`
+- Beispiel mit Filtern: `/cards?set_id=A2a&type=Metal&category=Pokemon&hp_min=100&retreat_max=2&limit=10`
 - Beispiel nur nach Kategorie: `/cards?category=Trainer`
 
 **Beispiel:**
@@ -153,4 +154,4 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 ---
 
-**Letztes Update:** 2025-06-07
+**Letztes Update:** 2025-06-08
