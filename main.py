@@ -122,10 +122,16 @@ def get_cards(
     suffix: Optional[str] = None,
     hp_min: Optional[int] = None,
     hp_max: Optional[int] = None,
+    retreat_min: Optional[int] = None,
+    retreat_max: Optional[int] = None,
     limit: Optional[int] = None,
     offset: int = 0,
 ):
-    """Alle Karten mit optionalen Filtern abrufen."""
+    """Alle Karten mit optionalen Filtern abrufen.
+
+    Unterstützt Filter für Set, Typ, Seltenheit, Kategorie, KP und
+    Rückzugskosten.
+    """
     result = []
     for card in _cards:
         if set_id and card.get("set_id") != set_id:
@@ -147,6 +153,10 @@ def get_cards(
         if hp_min is not None and int(card.get("hp", 0)) < hp_min:
             continue
         if hp_max is not None and int(card.get("hp", 0)) > hp_max:
+            continue
+        if retreat_min is not None and int(card.get("retreat", 0)) < retreat_min:
+            continue
+        if retreat_max is not None and int(card.get("retreat", 0)) > retreat_max:
             continue
 
         c = card.copy()
