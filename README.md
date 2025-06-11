@@ -43,6 +43,7 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
   - `trainer_type` (Alias `trainerType`) – Trainer-Typ wie `Supporter` oder `Item`
   - `rarity` – Seltenheit der Karte
   - `category` – Kategorie der Karte (z. B. `Pokemon` oder `Trainer`)
+  - `stage` – Entwicklungsstufe wie `Basic`, `Stage1` oder `Stage2`
   - `evolve_from` – nur Pokémon, die sich aus dem angegebenen entwickeln
   - `booster` – Name des Boosters (muss im Feld `boosters` der Karte enthalten sein)
   - `illustrator` – Name des Illustrators
@@ -61,6 +62,7 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 - Beispiel mit Filtern: `/cards?set_id=A2a&type=Metal&category=Pokemon&hp_min=100&limit=10`
 - Beispiel für Trainerkarten: `/cards?trainer_type=Supporter&category=Trainer`
 - Beispiel nur nach Kategorie: `/cards?category=Trainer`
+- Beispiel nach Entwicklungsstufe: `/cards?stage=Stage1`
 - Beispiel nach Entwicklung: `/cards?evolve_from=Eevee`
 - Beispiel nach Illustrator: `/cards?illustrator=5ban Graphics`
 - Beispiel mit Suffix: `/cards?suffix=EX`
