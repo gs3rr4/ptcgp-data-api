@@ -116,6 +116,7 @@ def get_cards(
     type_: Optional[str] = Query(None, alias="type"),
     rarity: Optional[str] = None,
     category: Optional[str] = None,
+    evolve_from: Optional[str] = None,
     hp_min: Optional[int] = None,
     hp_max: Optional[int] = None,
     limit: Optional[int] = None,
@@ -135,6 +136,13 @@ def get_cards(
             continue
         if category and card.get("category") != category:
             continue
+        if evolve_from:
+            evo = card.get("evolveFrom")
+            if not evo:
+                continue
+            names = evo.values() if isinstance(evo, dict) else [evo]
+            if not any(str(evolve_from).lower() == str(n).lower() for n in names):
+                continue
         if hp_min is not None and int(card.get("hp", 0)) < hp_min:
             continue
         if hp_max is not None and int(card.get("hp", 0)) > hp_max:
