@@ -114,24 +114,36 @@ def get_cards(
     lang: str = "de",
     set_id: Optional[str] = None,
     type_: Optional[str] = Query(None, alias="type"),
+    trainer_type: Optional[str] = Query(None, alias="trainerType"),
     rarity: Optional[str] = None,
     category: Optional[str] = None,
     evolve_from: Optional[str] = None,
+    booster: Optional[str] = None,
+    illustrator: Optional[str] = None,
+    suffix: Optional[str] = None,
     hp_min: Optional[int] = None,
     hp_max: Optional[int] = None,
+    weakness: Optional[str] = None,
+    retreat_min: Optional[int] = None,
+    retreat_max: Optional[int] = None,
     limit: Optional[int] = None,
     offset: int = 0,
 ):
-    """Alle Karten mit optionalen Filtern abrufen."""
+    """Alle Karten mit optionalen Filtern abrufen.
+
+    Unterstützt Filter für Set, Typ, Seltenheit, Kategorie, KP und
+    Rückzugskosten.
+    """
     result = []
     for card in _cards:
         if set_id and card.get("set_id") != set_id:
             continue
         if type_:
             card_types = card.get("types", [])
-            trainer_type = card.get("trainerType")
-            if type_ not in card_types and type_ != trainer_type:
+            if type_ not in card_types:
                 continue
+        if trainer_type and card.get("trainerType") != trainer_type:
+            continue
         if rarity and card.get("rarity") != rarity:
             continue
         if category and card.get("category") != category:
@@ -143,9 +155,21 @@ def get_cards(
             names = evo.values() if isinstance(evo, dict) else [evo]
             if not any(str(evolve_from).lower() == str(n).lower() for n in names):
                 continue
+        if booster and booster not in card.get("boosters", []):
+        if illustrator and card.get("illustrator") != illustrator:
+        if suffix and card.get("suffix") != suffix:
+            continue
         if hp_min is not None and int(card.get("hp", 0)) < hp_min:
             continue
         if hp_max is not None and int(card.get("hp", 0)) > hp_max:
+            continue
+        if weakness:
+            weak_types = [w.get("type") for w in card.get("weaknesses", [])]
+            if weakness not in weak_types:
+                continue
+        if retreat_min is not None and int(card.get("retreat", 0)) < retreat_min:
+            continue
+        if retreat_max is not None and int(card.get("retreat", 0)) > retreat_max:
             continue
 
         c = card.copy()
