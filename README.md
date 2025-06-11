@@ -43,6 +43,7 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
   - `trainer_type` (Alias `trainerType`) – Trainer-Typ wie `Supporter` oder `Item`
   - `rarity` – Seltenheit der Karte
   - `category` – Kategorie der Karte (z. B. `Pokemon` oder `Trainer`)
+  - `booster` – Name des Boosters (muss im Feld `boosters` der Karte enthalten sein)
   - `illustrator` – Name des Illustrators
   - `suffix` – nur Karten mit bestimmtem Suffix (z. B. `EX`)
   - `hp_min` / `hp_max` – minimale bzw. maximale KP

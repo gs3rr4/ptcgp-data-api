@@ -117,6 +117,7 @@ def get_cards(
     trainer_type: Optional[str] = Query(None, alias="trainerType"),
     rarity: Optional[str] = None,
     category: Optional[str] = None,
+    booster: Optional[str] = None,
     illustrator: Optional[str] = None,
     suffix: Optional[str] = None,
     hp_min: Optional[int] = None,
@@ -139,6 +140,7 @@ def get_cards(
             continue
         if category and card.get("category") != category:
             continue
+        if booster and booster not in card.get("boosters", []):
         if illustrator and card.get("illustrator") != illustrator:
         if suffix and card.get("suffix") != suffix:
             continue
