@@ -118,6 +118,7 @@ def get_cards(
     category: Optional[str] = None,
     hp_min: Optional[int] = None,
     hp_max: Optional[int] = None,
+    weakness: Optional[str] = None,
     limit: Optional[int] = None,
     offset: int = 0,
 ):
@@ -139,6 +140,10 @@ def get_cards(
             continue
         if hp_max is not None and int(card.get("hp", 0)) > hp_max:
             continue
+        if weakness:
+            weak_types = [w.get("type") for w in card.get("weaknesses", [])]
+            if weakness not in weak_types:
+                continue
 
         c = card.copy()
         c["set"] = _sets.get(c["set_id"])
