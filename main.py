@@ -114,9 +114,11 @@ def get_cards(
     lang: str = "de",
     set_id: Optional[str] = None,
     type_: Optional[str] = Query(None, alias="type"),
+    trainer_type: Optional[str] = Query(None, alias="trainerType"),
     rarity: Optional[str] = None,
     category: Optional[str] = None,
     illustrator: Optional[str] = None,
+    suffix: Optional[str] = None,
     hp_min: Optional[int] = None,
     hp_max: Optional[int] = None,
     limit: Optional[int] = None,
@@ -129,14 +131,16 @@ def get_cards(
             continue
         if type_:
             card_types = card.get("types", [])
-            trainer_type = card.get("trainerType")
-            if type_ not in card_types and type_ != trainer_type:
+            if type_ not in card_types:
                 continue
+        if trainer_type and card.get("trainerType") != trainer_type:
+            continue
         if rarity and card.get("rarity") != rarity:
             continue
         if category and card.get("category") != category:
             continue
         if illustrator and card.get("illustrator") != illustrator:
+        if suffix and card.get("suffix") != suffix:
             continue
         if hp_min is not None and int(card.get("hp", 0)) < hp_min:
             continue
