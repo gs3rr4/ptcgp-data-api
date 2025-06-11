@@ -122,6 +122,7 @@ def get_cards(
     suffix: Optional[str] = None,
     hp_min: Optional[int] = None,
     hp_max: Optional[int] = None,
+    weakness: Optional[str] = None,
     retreat_min: Optional[int] = None,
     retreat_max: Optional[int] = None,
     limit: Optional[int] = None,
@@ -154,6 +155,10 @@ def get_cards(
             continue
         if hp_max is not None and int(card.get("hp", 0)) > hp_max:
             continue
+        if weakness:
+            weak_types = [w.get("type") for w in card.get("weaknesses", [])]
+            if weakness not in weak_types:
+                continue
         if retreat_min is not None and int(card.get("retreat", 0)) < retreat_min:
             continue
         if retreat_max is not None and int(card.get("retreat", 0)) > retreat_max:

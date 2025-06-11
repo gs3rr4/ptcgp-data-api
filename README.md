@@ -47,6 +47,11 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
   - `illustrator` – Name des Illustrators
   - `suffix` – nur Karten mit bestimmtem Suffix (z. B. `EX`)
   - `hp_min` / `hp_max` – minimale bzw. maximale KP
+  - `weakness` – Schwäche-Typ der Karte
+  - `limit` & `offset` – Pagination der Ergebnisse
+- Ohne Angabe wird nur Deutsch zurückgegeben.
+- Beispiel für Englisch: `/cards?lang=en`
+- Beispiel mit Filtern: `/cards?set_id=A2a&type=Metal&category=Pokemon&hp_min=100&weakness=Fire&limit=10`
   - `retreat_min` / `retreat_max` – minimale bzw. maximale Rückzugskosten
   - `limit` & `offset` – Pagination der Ergebnisse
 - Ohne Angabe wird nur Deutsch zurückgegeben.
