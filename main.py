@@ -118,6 +118,7 @@ def get_cards(
     rarity: Optional[str] = None,
     category: Optional[str] = None,
     evolve_from: Optional[str] = None,
+    stage: Optional[str] = None,
     booster: Optional[str] = None,
     illustrator: Optional[str] = None,
     suffix: Optional[str] = None,
@@ -131,8 +132,8 @@ def get_cards(
 ):
     """Alle Karten mit optionalen Filtern abrufen.
 
-    Unterstützt Filter für Set, Typ, Seltenheit, Kategorie, KP und
-    Rückzugskosten.
+    Unterstützt Filter für Set, Typ, Seltenheit, Kategorie, Entwicklungsstufe,
+    KP und Rückzugskosten.
     """
     result = []
     for card in _cards:
@@ -147,6 +148,8 @@ def get_cards(
         if rarity and card.get("rarity") != rarity:
             continue
         if category and card.get("category") != category:
+            continue
+        if stage and card.get("stage") != stage:
             continue
         if evolve_from:
             evo = card.get("evolveFrom")
