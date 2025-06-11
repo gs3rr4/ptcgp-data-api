@@ -117,6 +117,7 @@ def get_cards(
     trainer_type: Optional[str] = Query(None, alias="trainerType"),
     rarity: Optional[str] = None,
     category: Optional[str] = None,
+    evolve_from: Optional[str] = None,
     booster: Optional[str] = None,
     illustrator: Optional[str] = None,
     suffix: Optional[str] = None,
@@ -147,6 +148,13 @@ def get_cards(
             continue
         if category and card.get("category") != category:
             continue
+        if evolve_from:
+            evo = card.get("evolveFrom")
+            if not evo:
+                continue
+            names = evo.values() if isinstance(evo, dict) else [evo]
+            if not any(str(evolve_from).lower() == str(n).lower() for n in names):
+                continue
         if booster and booster not in card.get("boosters", []):
         if illustrator and card.get("illustrator") != illustrator:
         if suffix and card.get("suffix") != suffix:
