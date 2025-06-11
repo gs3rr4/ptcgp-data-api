@@ -39,16 +39,22 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 - Optionaler Query-Parameter `lang` bestimmt Sprache von Kartentext und Bild (Standard: `de`)
 - Weitere optionale Filter:
   - `set_id` – nur Karten eines bestimmten Sets
-  - `type` – Pokémon-Typ oder Trainer-Typ
+  - `type` – Pokémon-Typ
+  - `trainer_type` (Alias `trainerType`) – Trainer-Typ wie `Supporter` oder `Item`
   - `rarity` – Seltenheit der Karte
   - `category` – Kategorie der Karte (z. B. `Pokemon` oder `Trainer`)
   - `booster` – Name des Boosters (muss im Feld `boosters` der Karte enthalten sein)
+  - `illustrator` – Name des Illustrators
+  - `suffix` – nur Karten mit bestimmtem Suffix (z. B. `EX`)
   - `hp_min` / `hp_max` – minimale bzw. maximale KP
   - `limit` & `offset` – Pagination der Ergebnisse
 - Ohne Angabe wird nur Deutsch zurückgegeben.
 - Beispiel für Englisch: `/cards?lang=en`
 - Beispiel mit Filtern: `/cards?set_id=A2a&type=Metal&category=Pokemon&hp_min=100&limit=10`
+- Beispiel für Trainerkarten: `/cards?trainer_type=Supporter&category=Trainer`
 - Beispiel nur nach Kategorie: `/cards?category=Trainer`
+- Beispiel nach Illustrator: `/cards?illustrator=5ban Graphics`
+- Beispiel mit Suffix: `/cards?suffix=EX`
 
 **Beispiel:**
 `https://ptcgp-api-production.up.railway.app/cards`
