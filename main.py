@@ -93,9 +93,6 @@ def _build_search_index(cards):
 # Sprachenliste für Übersetzungen
 _LANGUAGES = {"de", "en", "fr", "es", "it", "pt-br", "ko"}
 
-_search_index = _build_search_index(_cards)
-
-
 def _filter_language(data, lang: str, default_lang: str = "de"):
     """Reduziert übersetzte Felder auf eine Sprache."""
     if isinstance(data, list):
@@ -110,6 +107,9 @@ def _filter_language(data, lang: str, default_lang: str = "de"):
             return _filter_language(data[next(iter(lang_keys))], lang, default_lang)
         return {k: _filter_language(v, lang, default_lang) for k, v in data.items()}
     return data
+
+
+_search_index = _build_search_index(_cards)
 
 
 def _image_url(lang: str, set_id: str, local_id: str) -> str:
