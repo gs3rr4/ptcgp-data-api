@@ -10,6 +10,7 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 - **Datenquelle**: [ptcgp-data-extraction](https://github.com/gs3rr4/ptcgp-data-extraction)
 - **Deployment**: Railway (Europa-Region)
 - **Status**: Beta
+- **API Version**: 1.0
 
 ---
 ## Lokale Entwicklung
@@ -96,10 +97,11 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 - Query-Parameter `q` legt den Suchbegriff fest
 - Optionaler Query-Parameter `lang` bestimmt Sprache von Text und Bild (Standard: `de`)
+- Optionaler Query-Parameter `fields` schränkt die Suche auf bestimmte Felder ein (`name`, `abilities`, `attacks`)
 - **Antwort:** Array mit Karten, die den Suchbegriff enthalten
 
 **Beispiel:**
-`GET /cards/search?q=Gift&lang=de`
+`GET /cards/search?q=Gift&fields=name,attacks&lang=de`
 
 ---
 
@@ -126,6 +128,50 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 **Beispiel:**
 `https://ptcgp-api-production.up.railway.app/sets/A2a`
+
+---
+
+### Events abrufen
+
+`GET /events`
+
+- **Antwort:** Array mit bekannten Events
+
+**Beispiel:**
+`https://ptcgp-api-production.up.railway.app/events`
+
+---
+
+### Turniere abrufen
+
+`GET /tournaments`
+
+- **Antwort:** Array mit Turnierinformationen
+
+**Beispiel:**
+`https://ptcgp-api-production.up.railway.app/tournaments`
+
+---
+
+### Trading-Funktionen
+
+- `POST /users/{id}/have` – setzt Karten, die ein Nutzer anbietet
+- `POST /users/{id}/want` – setzt Karten, die ein Nutzer sucht
+- `GET /users/{id}` – gibt die aktuellen Listen eines Nutzers zurück
+- `GET /trades/matches` – listet einfache Tauschvorschläge zwischen Nutzern
+
+### Deck-Verwaltung
+
+- `POST /decks` – neues Deck anlegen (`name`, `cards`)
+- `GET /decks` – alle Decks abrufen
+- `GET /decks/{deck_id}` – einzelnes Deck anzeigen
+- `POST /decks/{deck_id}/vote` – Deck bewerten (`vote=up|down`)
+
+### Godpack-Gruppen
+
+- `POST /groups` – neue Gruppe anlegen (`name`)
+- `POST /groups/{group_id}/join` – Gruppe beitreten (`user_id`)
+- `GET /groups/{group_id}` – Gruppendetails abrufen
 
 ---
 
@@ -170,4 +216,4 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 ---
 
-**Letztes Update:** 2025-06-22
+**Letztes Update:** 2025-06-23

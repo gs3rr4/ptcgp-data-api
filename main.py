@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional
+from typing import Optional, List, Dict
 import json
 import os
 import requests
 
-_image_cache = {}
+_image_cache: Dict[str, bool] = {}
 
-app = FastAPI()
+app = FastAPI(title="PTCGP Data API", version="1.0")
 
 # CORS erlauben (z.B. für die Mobile-App)
 app.add_middleware(
@@ -21,17 +21,34 @@ app.add_middleware(
 base_dir = os.path.dirname(__file__)
 cards_path = os.path.join(base_dir, 'data', 'cards.json')
 sets_path = os.path.join(base_dir, 'data', 'sets.json')
+events_path = os.path.join(base_dir, 'data', 'events.json')
+tournaments_path = os.path.join(base_dir, 'data', 'tournaments.json')
 
 if not os.path.exists(cards_path):
     raise FileNotFoundError(f"cards.json not found at {cards_path}")
 if not os.path.exists(sets_path):
     raise FileNotFoundError(f"sets.json not found at {sets_path}")
+if not os.path.exists(events_path):
+    raise FileNotFoundError(f"events.json not found at {events_path}")
+if not os.path.exists(tournaments_path):
+    raise FileNotFoundError(f"tournaments.json not found at {tournaments_path}")
 
 # Daten laden
 with open(cards_path, encoding='utf-8') as f:
     _raw_cards = json.load(f)
 with open(sets_path, encoding='utf-8') as f:
     _sets = {s["id"]: s for s in json.load(f)}
+with open(events_path, encoding='utf-8') as f:
+    _events = json.load(f)
+with open(tournaments_path, encoding='utf-8') as f:
+    _tournaments = json.load(f)
+
+# In-Memory Stores für benutzergesteuerte Funktionen
+_users: Dict[str, Dict[str, set]] = {}
+_decks: Dict[str, Dict] = {}
+_deck_counter = 1
+_groups: Dict[str, Dict] = {}
+_group_counter = 1
 
 # Karten vorbereiten: globale ID und lokale ID pro Set
 _cards = []
@@ -191,18 +208,30 @@ def get_cards(
 
 
 @app.get("/cards/search")
-def search_cards(q: str, lang: str = "de"):
+def search_cards(
+    q: str,
+    lang: str = "de",
+    fields: Optional[str] = Query(
+        None,
+        description="Komma-getrennte Liste der Felder: name, abilities, attacks",
+    ),
+):
     results = []
     q_lower = q.lower()
+    requested = None
+    if fields:
+        requested = [f.strip() for f in fields.split(",") if f.strip() in {"name", "abilities", "attacks"}]
     for card in _cards:
-        c = card.copy()
-        c["set"] = _sets.get(c["set_id"])
-        c["image"] = f"https://assets.tcgdex.net/{lang}/tcgp/{c['set_id']}/{c['_local_id']}/high.webp"
-        del c["_local_id"]
-        filtered = _filter_language(c, lang)
-        text = json.dumps(filtered, ensure_ascii=False).lower()
+        search_data = _search_index.get(card["id"], {}).get(lang, {})
+        text = search_data.get("full", "") if not requested else " ".join(
+            search_data.get(f, "") for f in requested
+        )
         if q_lower in text:
-            results.append(filtered)
+            c = card.copy()
+            c["set"] = _sets.get(c["set_id"])
+            c["image"] = _image_url(lang, c["set_id"], c["_local_id"])
+            del c["_local_id"]
+            results.append(_filter_language(c, lang))
     return results
 
 
@@ -231,3 +260,115 @@ def get_set(set_id: str, lang: str = "de"):
     if s is None:
         raise HTTPException(status_code=404, detail="Set not found")
     return _filter_language(s, lang)
+
+
+@app.get("/events")
+def get_events():
+    """Alle bekannten Events zurückgeben."""
+    return _events
+
+
+@app.get("/tournaments")
+def get_tournaments():
+    """Liste der Turniere zurückgeben."""
+    return _tournaments
+
+
+@app.post("/users/{user_id}/have")
+def set_have(user_id: str, cards: List[str]):
+    """Liste der vorhandenen Karten setzen."""
+    user = _users.setdefault(user_id, {"have": set(), "want": set()})
+    user["have"] = set(cards)
+    return {"user": user_id, "have": sorted(user["have"])}
+
+
+@app.post("/users/{user_id}/want")
+def set_want(user_id: str, cards: List[str]):
+    """Gewünschte Karten setzen."""
+    user = _users.setdefault(user_id, {"have": set(), "want": set()})
+    user["want"] = set(cards)
+    return {"user": user_id, "want": sorted(user["want"])}
+
+
+@app.get("/users/{user_id}")
+def get_user(user_id: str):
+    user = _users.get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"user": user_id, "have": sorted(user["have"]), "want": sorted(user["want"])}
+
+
+@app.get("/trades/matches")
+def trade_matches():
+    """Einfache Trade-Matches berechnen."""
+    matches = []
+    ids = list(_users.keys())
+    for i, a in enumerate(ids):
+        for b in ids[i + 1 :]:
+            ua = _users[a]
+            ub = _users[b]
+            if ua["have"] & ub["want"] and ub["have"] & ua["want"]:
+                matches.append({"user_a": a, "user_b": b})
+    return matches
+
+
+@app.post("/decks")
+def create_deck(name: str, cards: List[str]):
+    """Neues Deck anlegen."""
+    global _deck_counter
+    deck_id = str(_deck_counter)
+    _deck_counter += 1
+    _decks[deck_id] = {"id": deck_id, "name": name, "cards": cards, "votes": 0}
+    return _decks[deck_id]
+
+
+@app.get("/decks")
+def list_decks():
+    return list(_decks.values())
+
+
+@app.get("/decks/{deck_id}")
+def get_deck(deck_id: str):
+    deck = _decks.get(deck_id)
+    if not deck:
+        raise HTTPException(status_code=404, detail="Deck not found")
+    return deck
+
+
+@app.post("/decks/{deck_id}/vote")
+def vote_deck(deck_id: str, vote: str):
+    deck = _decks.get(deck_id)
+    if not deck:
+        raise HTTPException(status_code=404, detail="Deck not found")
+    if vote == "up":
+        deck["votes"] += 1
+    elif vote == "down":
+        deck["votes"] -= 1
+    return deck
+
+
+@app.post("/groups")
+def create_group(name: str):
+    global _group_counter
+    group_id = str(_group_counter)
+    _group_counter += 1
+    _groups[group_id] = {"id": group_id, "name": name, "members": []}
+    return _groups[group_id]
+
+
+@app.post("/groups/{group_id}/join")
+def join_group(group_id: str, user_id: str):
+    group = _groups.get(group_id)
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    if user_id not in group["members"]:
+        group["members"].append(user_id)
+    return group
+
+
+@app.get("/groups/{group_id}")
+def get_group(group_id: str):
+    group = _groups.get(group_id)
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    return group
