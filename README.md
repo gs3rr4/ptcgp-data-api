@@ -24,6 +24,8 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
    ```bash
    pip install -r requirements.txt
    ```
+   **Hinweis:** Führe diesen Schritt unbedingt vor dem Start von `uvicorn` aus,
+   um Fehler wie `ModuleNotFoundError: requests` zu vermeiden.
 3. API lokal starten
    ```bash
    uvicorn main:app --reload
