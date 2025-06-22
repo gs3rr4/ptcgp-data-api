@@ -52,26 +52,14 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
   - `illustrator` – Name des Illustrators
   - `suffix` – nur Karten mit bestimmtem Suffix (z. B. `EX`)
   - `hp_min` / `hp_max` – minimale bzw. maximale KP
+  - `retreat_min` / `retreat_max` – minimale bzw. maximale Rückzugskosten
   - `weakness` – Schwäche-Typ der Karte
   - `limit` & `offset` – Pagination der Ergebnisse
 - Ohne Angabe wird nur Deutsch zurückgegeben.
-- Beispiel für Englisch: `/cards?lang=en`
-- Beispiel mit Filtern: `/cards?set_id=A2a&type=Metal&category=Pokemon&hp_min=100&weakness=Fire&limit=10`
-  - `retreat_min` / `retreat_max` – minimale bzw. maximale Rückzugskosten
-  - `limit` & `offset` – Pagination der Ergebnisse
-- Ohne Angabe wird nur Deutsch zurückgegeben.
-- Beispiel für Englisch: `/cards?lang=en`
-- Beispiel mit Filtern: `/cards?set_id=A2a&type=Metal&category=Pokemon&hp_min=100&retreat_max=2&limit=10`
-- Beispiel mit Filtern: `/cards?set_id=A2a&type=Metal&category=Pokemon&hp_min=100&limit=10`
-- Beispiel für Trainerkarten: `/cards?trainer_type=Supporter&category=Trainer`
-- Beispiel nur nach Kategorie: `/cards?category=Trainer`
-- Beispiel nach Entwicklungsstufe: `/cards?stage=Stage1`
-- Beispiel nach Entwicklung: `/cards?evolve_from=Eevee`
-- Beispiel nach Illustrator: `/cards?illustrator=5ban Graphics`
-- Beispiel mit Suffix: `/cards?suffix=EX`
 
-**Beispiel:**
-`https://ptcgp-api-production.up.railway.app/cards`
+**Beispiele (DE/EN):**
+`https://ptcgp-api-production.up.railway.app/cards?set_id=A2a&type=Metal&limit=10`
+`https://ptcgp-api-production.up.railway.app/cards?lang=en&set_id=A2a&type=Metal&limit=10`
 
 ---
 
