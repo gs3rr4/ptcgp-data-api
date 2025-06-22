@@ -159,7 +159,9 @@ def get_cards(
             if not any(str(evolve_from).lower() == str(n).lower() for n in names):
                 continue
         if booster and booster not in card.get("boosters", []):
+            continue
         if illustrator and card.get("illustrator") != illustrator:
+            continue
         if suffix and card.get("suffix") != suffix:
             continue
         if hp_min is not None and int(card.get("hp", 0)) < hp_min:
@@ -189,30 +191,18 @@ def get_cards(
 
 
 @app.get("/cards/search")
-def search_cards(
-    q: str,
-    lang: str = "de",
-    fields: Optional[str] = Query(
-        None,
-        description="Komma-getrennte Liste der Felder: name, abilities, attacks",
-    ),
-):
+def search_cards(q: str, lang: str = "de"):
     results = []
     q_lower = q.lower()
-    requested = None
-    if fields:
-        requested = [f.strip() for f in fields.split(",") if f.strip() in {"name", "abilities", "attacks"}]
     for card in _cards:
-        search_data = _search_index.get(card["id"], {}).get(lang, {})
-        text = search_data.get("full", "") if not requested else " ".join(
-            search_data.get(f, "") for f in requested
-        )
+        c = card.copy()
+        c["set"] = _sets.get(c["set_id"])
+        c["image"] = f"https://assets.tcgdex.net/{lang}/tcgp/{c['set_id']}/{c['_local_id']}/high.webp"
+        del c["_local_id"]
+        filtered = _filter_language(c, lang)
+        text = json.dumps(filtered, ensure_ascii=False).lower()
         if q_lower in text:
-            c = card.copy()
-            c["set"] = _sets.get(c["set_id"])
-            c["image"] = f"https://assets.tcgdex.net/{lang}/tcgp/{c['set_id']}/{c['_local_id']}/high.webp"
-            del c["_local_id"]
-            results.append(_filter_language(c, lang))
+            results.append(filtered)
     return results
 
 
