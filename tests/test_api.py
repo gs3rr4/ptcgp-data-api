@@ -53,9 +53,9 @@ def test_tournaments_returns_list():
 
 
 def test_get_card_by_id():
-    response = client.get("/cards/001")
-    assert response.status_code == 200
-    assert response.json()["id"] == "001"
+    resp = client.get("/cards/001")
+    assert resp.status_code == 200
+    assert resp.json().get("id") == "001"
 
 
 def test_search_cards():
