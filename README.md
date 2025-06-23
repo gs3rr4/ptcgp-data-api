@@ -85,6 +85,10 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 **Beispiel:**
 `https://ptcgp-api-production.up.railway.app/cards/002`
 
+*Hinweis:* Seit einem internen Update wird beim Laden der Daten ein
+zusätzlicher Index verwendet, sodass dieser Endpunkt deutlich schneller auf
+eine ID-Anfrage reagieren kann.
+
 ---
 
 ### Karten suchen

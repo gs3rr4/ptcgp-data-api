@@ -52,6 +52,7 @@ _group_counter = 1
 
 # Karten vorbereiten: globale ID und lokale ID pro Set
 _cards = []
+_cards_by_id = {}
 _set_counter = {}
 for idx, card in enumerate(_raw_cards, start=1):
     set_id = card.get("set_id")
@@ -60,6 +61,7 @@ for idx, card in enumerate(_raw_cards, start=1):
     card_obj["id"] = f"{idx:03d}"
     card_obj["_local_id"] = f"{_set_counter[set_id]:03d}"
     _cards.append(card_obj)
+    _cards_by_id[card_obj["id"]] = card_obj
 
 
 # Suche-Index vorbereiten
@@ -237,14 +239,14 @@ def search_cards(
 
 @app.get("/cards/{card_id}")
 def get_card(card_id: str, lang: str = "de"):
-    for card in _cards:
-        if card["id"] == card_id:
-            c = card.copy()
-            c["set"] = _sets.get(c["set_id"])
-            c["image"] = _image_url(lang, c["set_id"], c["_local_id"])
-            del c["_local_id"]
-            return _filter_language(c, lang)
-    raise HTTPException(status_code=404, detail="Card not found")
+    card = _cards_by_id.get(card_id)
+    if card is None:
+        raise HTTPException(status_code=404, detail="Card not found")
+    c = card.copy()
+    c["set"] = _sets.get(c["set_id"])
+    c["image"] = _image_url(lang, c["set_id"], c["_local_id"])
+    del c["_local_id"]
+    return _filter_language(c, lang)
 
 
 @app.get("/sets")
