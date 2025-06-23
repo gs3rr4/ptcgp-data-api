@@ -119,3 +119,21 @@ def test_deck_and_group_flow():
     resp = client.get(f"/groups/{group_id}")
     assert resp.status_code == 200
     assert user in resp.json()["members"]
+
+
+def test_get_unknown_card():
+    resp = client.get("/cards/unknown")
+    assert resp.status_code == 404
+
+
+def test_get_unknown_set():
+    resp = client.get("/sets/unknown")
+    assert resp.status_code == 404
+
+
+def test_trade_matches_empty(monkeypatch):
+    import main
+    monkeypatch.setattr(main, "_users", {})
+    resp = client.get("/trades/matches")
+    assert resp.status_code == 200
+    assert resp.json() == []
