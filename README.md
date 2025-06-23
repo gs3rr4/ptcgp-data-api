@@ -56,6 +56,8 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
   - `weakness` – Schwäche-Typ der Karte
   - `limit` & `offset` – Pagination der Ergebnisse
 - Ohne Angabe wird nur Deutsch zurückgegeben.
+  Das hochauflösende Bild (`high.webp`) wird nur dann verwendet, wenn es
+  existiert; andernfalls liefert die API `low.webp`.
 
 **Beispiele (DE/EN):**
 `https://ptcgp-api-production.up.railway.app/cards?set_id=A2a&type=Metal&limit=10`

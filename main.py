@@ -196,7 +196,7 @@ def get_cards(
 
         c = card.copy()
         c["set"] = _sets.get(c["set_id"])
-        c["image"] = f"https://assets.tcgdex.net/{lang}/tcgp/{c['set_id']}/{c['_local_id']}/high.webp"
+        c["image"] = _image_url(lang, c["set_id"], c["_local_id"])
         del c["_local_id"]
         result.append(_filter_language(c, lang))
 
