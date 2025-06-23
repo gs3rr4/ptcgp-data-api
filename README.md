@@ -34,6 +34,8 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
    ```bash
    pytest
    ```
+5. Optional kann die Umgebungsvariable `SKIP_IMAGE_CHECKS=1` gesetzt werden,
+   um die Prüfung von Bild-URLs (HTTP-HEAD) zu überspringen.
 
 ---
 ## Endpunkte
@@ -62,6 +64,8 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 - Ohne Angabe wird nur Deutsch zurückgegeben.
   Das hochauflösende Bild (`high.webp`) wird nur dann verwendet, wenn es
   existiert; andernfalls liefert die API `low.webp`.
+  Setze `SKIP_IMAGE_CHECKS`, um diese Prüfung zu deaktivieren und immer
+  `high.webp` zu erhalten.
 
 **Beispiele (DE/EN):**
 `https://ptcgp-api-production.up.railway.app/cards?set_id=A2a&type=Metal&limit=10`

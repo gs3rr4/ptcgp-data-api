@@ -115,6 +115,8 @@ _search_index = _build_search_index(_cards)
 def _image_url(lang: str, set_id: str, local_id: str) -> str:
     base = f"https://assets.tcgdex.net/{lang}/tcgp/{set_id}/{local_id}"
     high = f"{base}/high.webp"
+    if os.getenv("SKIP_IMAGE_CHECKS"):
+        return high
     if high not in _image_cache:
         try:
             resp = requests.head(high)
