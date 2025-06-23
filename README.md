@@ -30,6 +30,10 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
    ```bash
    uvicorn main:app --reload
    ```
+4. Tests ausführen
+   ```bash
+   pytest
+   ```
 
 ---
 ## Endpunkte
