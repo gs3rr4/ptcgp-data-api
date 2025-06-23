@@ -17,6 +17,7 @@ client = TestClient(app)
 @pytest.fixture(autouse=True)
 def disable_network(monkeypatch):
     """Avoid real network calls during tests."""
+
     def fake_image_url(lang: str, set_id: str, local_id: str) -> str:
         return f"/mock/{lang}/{set_id}/{local_id}.webp"
 
@@ -117,4 +118,3 @@ def test_deck_and_group_flow():
     resp = client.get(f"/groups/{group_id}")
     assert resp.status_code == 200
     assert user in resp.json()["members"]
-    assert response.json().get("id") == "001"

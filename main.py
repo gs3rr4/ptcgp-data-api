@@ -19,10 +19,10 @@ app.add_middleware(
 
 # Pfade zu den Daten
 base_dir = os.path.dirname(__file__)
-cards_path = os.path.join(base_dir, 'data', 'cards.json')
-sets_path = os.path.join(base_dir, 'data', 'sets.json')
-events_path = os.path.join(base_dir, 'data', 'events.json')
-tournaments_path = os.path.join(base_dir, 'data', 'tournaments.json')
+cards_path = os.path.join(base_dir, "data", "cards.json")
+sets_path = os.path.join(base_dir, "data", "sets.json")
+events_path = os.path.join(base_dir, "data", "events.json")
+tournaments_path = os.path.join(base_dir, "data", "tournaments.json")
 
 if not os.path.exists(cards_path):
     raise FileNotFoundError(f"cards.json not found at {cards_path}")
@@ -34,13 +34,13 @@ if not os.path.exists(tournaments_path):
     raise FileNotFoundError(f"tournaments.json not found at {tournaments_path}")
 
 # Daten laden
-with open(cards_path, encoding='utf-8') as f:
+with open(cards_path, encoding="utf-8") as f:
     _raw_cards = json.load(f)
-with open(sets_path, encoding='utf-8') as f:
+with open(sets_path, encoding="utf-8") as f:
     _sets = {s["id"]: s for s in json.load(f)}
-with open(events_path, encoding='utf-8') as f:
+with open(events_path, encoding="utf-8") as f:
     _events = json.load(f)
-with open(tournaments_path, encoding='utf-8') as f:
+with open(tournaments_path, encoding="utf-8") as f:
     _tournaments = json.load(f)
 
 # In-Memory Stores für benutzergesteuerte Funktionen
@@ -73,13 +73,21 @@ def _build_search_index(cards):
             name_txt = str(_filter_language(card.get("name", ""), lang)).lower()
             abil_parts = []
             for ab in card.get("abilities", []):
-                abil_parts.append(str(_filter_language(ab.get("name", ""), lang)).lower())
-                abil_parts.append(str(_filter_language(ab.get("effect", ""), lang)).lower())
+                abil_parts.append(
+                    str(_filter_language(ab.get("name", ""), lang)).lower()
+                )
+                abil_parts.append(
+                    str(_filter_language(ab.get("effect", ""), lang)).lower()
+                )
             abil_txt = " ".join(abil_parts)
             atk_parts = []
             for at in card.get("attacks", []):
-                atk_parts.append(str(_filter_language(at.get("name", ""), lang)).lower())
-                atk_parts.append(str(_filter_language(at.get("effect", ""), lang)).lower())
+                atk_parts.append(
+                    str(_filter_language(at.get("name", ""), lang)).lower()
+                )
+                atk_parts.append(
+                    str(_filter_language(at.get("effect", ""), lang)).lower()
+                )
             atk_txt = " ".join(atk_parts)
             per_lang[lang] = {
                 "name": name_txt,
@@ -91,9 +99,9 @@ def _build_search_index(cards):
     return index
 
 
-
 # Sprachenliste für Übersetzungen
 _LANGUAGES = {"de", "en", "fr", "es", "it", "pt-br", "ko"}
+
 
 def _filter_language(data, lang: str, default_lang: str = "de"):
     """Reduziert übersetzte Felder auf eine Sprache."""
@@ -224,11 +232,17 @@ def search_cards(
     q_lower = q.lower()
     requested = None
     if fields:
-        requested = [f.strip() for f in fields.split(",") if f.strip() in {"name", "abilities", "attacks"}]
+        requested = [
+            f.strip()
+            for f in fields.split(",")
+            if f.strip() in {"name", "abilities", "attacks"}
+        ]
     for card in _cards:
         search_data = _search_index.get(card["id"], {}).get(lang, {})
-        text = search_data.get("full", "") if not requested else " ".join(
-            search_data.get(f, "") for f in requested
+        text = (
+            search_data.get("full", "")
+            if not requested
+            else " ".join(search_data.get(f, "") for f in requested)
         )
         if q_lower in text:
             c = card.copy()
