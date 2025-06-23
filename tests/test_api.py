@@ -114,3 +114,4 @@ def test_deck_and_group_flow():
     resp = client.get(f"/groups/{group_id}")
     assert resp.status_code == 200
     assert user in resp.json()["members"]
+    assert response.json().get("id") == "001"
