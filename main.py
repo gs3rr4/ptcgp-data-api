@@ -234,6 +234,7 @@ def search_cards(
         description="Komma-getrennte Liste der Felder: name, abilities, attacks",
     ),
 ):
+    """Karten anhand eines Suchbegriffs finden."""
     results = []
     q_lower = q.lower()
     requested = None
@@ -261,6 +262,7 @@ def search_cards(
 
 @app.get("/cards/{card_id}")
 def get_card(card_id: str, lang: str = "de"):
+    """Eine einzelne Karte per ID abrufen."""
     card = _cards_by_id.get(card_id)
     if card is None:
         raise HTTPException(status_code=404, detail="Card not found")
@@ -316,6 +318,7 @@ def set_want(user_id: str, cards: List[str]):
 
 @app.get("/users/{user_id}")
 def get_user(user_id: str):
+    """Informationen zu einem Nutzer abrufen."""
     user = _users.get(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -348,11 +351,13 @@ def create_deck(name: str, cards: List[str]):
 
 @app.get("/decks")
 def list_decks():
+    """Alle Decks auflisten."""
     return list(_decks.values())
 
 
 @app.get("/decks/{deck_id}")
 def get_deck(deck_id: str):
+    """Ein Deck anhand seiner ID abrufen."""
     deck = _decks.get(deck_id)
     if not deck:
         raise HTTPException(status_code=404, detail="Deck not found")
@@ -361,6 +366,7 @@ def get_deck(deck_id: str):
 
 @app.post("/decks/{deck_id}/vote")
 def vote_deck(deck_id: str, vote: str):
+    """Ein Deck positiv oder negativ bewerten."""
     deck = _decks.get(deck_id)
     if not deck:
         raise HTTPException(status_code=404, detail="Deck not found")
@@ -373,6 +379,7 @@ def vote_deck(deck_id: str, vote: str):
 
 @app.post("/groups")
 def create_group(name: str):
+    """Neue Gruppe erstellen."""
     global _group_counter
     group_id = str(_group_counter)
     _group_counter += 1
@@ -382,6 +389,7 @@ def create_group(name: str):
 
 @app.post("/groups/{group_id}/join")
 def join_group(group_id: str, user_id: str):
+    """Einer Gruppe beitreten."""
     group = _groups.get(group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
@@ -392,6 +400,7 @@ def join_group(group_id: str, user_id: str):
 
 @app.get("/groups/{group_id}")
 def get_group(group_id: str):
+    """Gruppendetails abrufen."""
     group = _groups.get(group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
