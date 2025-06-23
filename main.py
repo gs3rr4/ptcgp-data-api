@@ -123,15 +123,21 @@ _search_index = _build_search_index(_cards)
 
 
 def _image_url(lang: str, set_id: str, local_id: str) -> str:
+    """Return the best available image URL for a card.
+
+    Performs an HTTP ``HEAD`` request with a 3 second timeout to check for the
+    existence of the high resolution image unless ``SKIP_IMAGE_CHECKS`` is set.
+    """
+
     base = f"https://assets.tcgdex.net/{lang}/tcgp/{set_id}/{local_id}"
     high = f"{base}/high.webp"
     if os.getenv("SKIP_IMAGE_CHECKS"):
         return high
     if high not in _image_cache:
         try:
-            resp = requests.head(high)
+            resp = requests.head(high, timeout=3)
             _image_cache[high] = resp.status_code == 200
-        except Exception:
+        except requests.RequestException:
             _image_cache[high] = False
     if _image_cache[high]:
         return high
