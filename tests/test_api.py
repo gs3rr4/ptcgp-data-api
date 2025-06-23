@@ -3,6 +3,9 @@ import sys
 import pytest
 import requests
 
+# Skip external image checks during tests
+os.environ["SKIP_IMAGE_CHECKS"] = "1"
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from fastapi.testclient import TestClient
