@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List, Dict
+from models import CardList, DeckCreate, Deck, GroupCreate, Group, JoinGroupRequest
 import json
 import os
 import requests
@@ -301,18 +302,24 @@ def get_tournaments():
 
 
 @app.post("/users/{user_id}/have")
-def set_have(user_id: str, cards: List[str]):
-    """Liste der vorhandenen Karten setzen."""
+def set_have(user_id: str, payload: CardList):
+    """Liste der vorhandenen Karten setzen.
+
+    Erwartet ``{"cards": [...]}`` als JSON-Body.
+    """
     user = _users.setdefault(user_id, {"have": set(), "want": set()})
-    user["have"] = set(cards)
+    user["have"] = set(payload.cards)
     return {"user": user_id, "have": sorted(user["have"])}
 
 
 @app.post("/users/{user_id}/want")
-def set_want(user_id: str, cards: List[str]):
-    """Gewünschte Karten setzen."""
+def set_want(user_id: str, payload: CardList):
+    """Gewünschte Karten setzen.
+
+    Erwartet ``{"cards": [...]}`` als JSON-Body.
+    """
     user = _users.setdefault(user_id, {"have": set(), "want": set()})
-    user["want"] = set(cards)
+    user["want"] = set(payload.cards)
     return {"user": user_id, "want": sorted(user["want"])}
 
 
@@ -340,12 +347,20 @@ def trade_matches():
 
 
 @app.post("/decks")
-def create_deck(name: str, cards: List[str]):
-    """Neues Deck anlegen."""
+def create_deck(deck: DeckCreate) -> Deck:
+    """Neues Deck anlegen.
+
+    Erwartet ein JSON-Objekt mit ``name`` und ``cards``.
+    """
     global _deck_counter
     deck_id = str(_deck_counter)
     _deck_counter += 1
-    _decks[deck_id] = {"id": deck_id, "name": name, "cards": cards, "votes": 0}
+    _decks[deck_id] = {
+        "id": deck_id,
+        "name": deck.name,
+        "cards": deck.cards,
+        "votes": 0,
+    }
     return _decks[deck_id]
 
 
@@ -365,7 +380,7 @@ def get_deck(deck_id: str):
 
 
 @app.post("/decks/{deck_id}/vote")
-def vote_deck(deck_id: str, vote: str):
+def vote_deck(deck_id: str, vote: str = Query(..., regex="^(up|down)$")) -> Deck:
     """Ein Deck positiv oder negativ bewerten."""
     deck = _decks.get(deck_id)
     if not deck:
@@ -378,23 +393,29 @@ def vote_deck(deck_id: str, vote: str):
 
 
 @app.post("/groups")
-def create_group(name: str):
-    """Neue Gruppe erstellen."""
+def create_group(group: GroupCreate) -> Group:
+    """Neue Gruppe erstellen.
+
+    Erwartet ein JSON-Objekt mit dem Feld ``name``.
+    """
     global _group_counter
     group_id = str(_group_counter)
     _group_counter += 1
-    _groups[group_id] = {"id": group_id, "name": name, "members": []}
+    _groups[group_id] = {"id": group_id, "name": group.name, "members": []}
     return _groups[group_id]
 
 
 @app.post("/groups/{group_id}/join")
-def join_group(group_id: str, user_id: str):
-    """Einer Gruppe beitreten."""
+def join_group(group_id: str, payload: JoinGroupRequest) -> Group:
+    """Einer Gruppe beitreten.
+
+    Erwartet ein JSON-Objekt mit ``user_id``.
+    """
     group = _groups.get(group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
-    if user_id not in group["members"]:
-        group["members"].append(user_id)
+    if payload.user_id not in group["members"]:
+        group["members"].append(payload.user_id)
     return group
 
 
