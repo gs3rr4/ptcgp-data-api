@@ -1,7 +1,6 @@
 import os
 import sys
 import pytest
-import httpx
 import logging
 
 # Skip external image checks during tests
@@ -33,10 +32,10 @@ def disable_network(monkeypatch):
 
     monkeypatch.setattr(cards_routes, "_image_url", fake_image_url)
 
-    async def dummy_head(*a, **k):
+    async def dummy_head(url, *_, **__):
         return DummyResp()
 
-    monkeypatch.setattr(httpx.AsyncClient, "head", dummy_head)
+    monkeypatch.setattr(cards_routes._client, "head", dummy_head)
 
 
 def test_cards_returns_list():
