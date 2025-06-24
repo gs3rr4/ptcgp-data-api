@@ -60,6 +60,17 @@ Das Logging kann über die Umgebungsvariable `LOG_LEVEL` angepasst werden. Der
 Standardwert ist `INFO`. Bei `DEBUG` werden zusätzliche Details ausgegeben.
 
 ---
+## Performance & Benchmarking
+
+Beim Laden der Kartendaten wird nun ein Index nach Set, Typ und Seltenheit
+erstellt, sodass einfache Filter deutlich schneller sind. Der Rest der
+Filterung erfolgt weiter in `O(n)`.
+
+Setze `PROFILE_FILTERS=1`, um die Laufzeit der Filterung im Log auszugeben.
+Mit `pytest --benchmark-only` lassen sich optionale Benchmarks in
+`tests/performance/` ausführen (erfordert `pytest-benchmark`).
+
+---
 ## Authentifizierung
 
 Ist die Umgebungsvariable `API_KEY` gesetzt, müssen Schreibzugriffe den gleichen
@@ -284,4 +295,4 @@ eine ID-Anfrage reagieren kann.
 
 ---
 
-**Letztes Update:** 2025-06-24
+**Letztes Update:** 2025-06-25

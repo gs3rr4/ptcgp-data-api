@@ -3,6 +3,7 @@ from typing import Optional
 import os
 import httpx
 import logging
+import time
 from cachetools import TTLCache
 
 from ..data import (
@@ -10,6 +11,10 @@ from ..data import (
     _cards_by_id,
     _sets,
     _search_index,
+    _index_by_set,
+    _index_by_type,
+    _index_by_rarity,
+    _index_by_trainer_type,
     filter_language,
 )
 
@@ -60,18 +65,35 @@ async def get_cards(
     limit: Optional[int] = None,
     offset: int = 0,
 ):
+    """Return cards filtered by query parameters.
+
+    The initial filtering by ``set_id``, ``type`` and ``rarity`` uses
+    pre-built indexes for ``O(k)`` lookups. Remaining filters are applied
+    with an ``O(n)`` scan over the candidate set.
+    """
+    start_ts = time.perf_counter() if os.getenv("PROFILE_FILTERS") else None
+
+    candidate_ids: Optional[set] = None
+    if set_id:
+        candidate_ids = set(_index_by_set.get(set_id, set()))
+    if type_:
+        ids = _index_by_type.get(type_, set())
+        candidate_ids = ids if candidate_ids is None else candidate_ids & ids
+    if trainer_type:
+        ids = _index_by_trainer_type.get(trainer_type, set())
+        candidate_ids = ids if candidate_ids is None else candidate_ids & ids
+    if rarity:
+        ids = _index_by_rarity.get(rarity, set())
+        candidate_ids = ids if candidate_ids is None else candidate_ids & ids
+
+    search_space = (
+        _cards
+        if candidate_ids is None
+        else [c for c in _cards if c["id"] in candidate_ids]
+    )
+
     result = []
-    for card in _cards:
-        if set_id and card.get("set_id") != set_id:
-            continue
-        if type_:
-            card_types = card.get("types", [])
-            if type_ not in card_types:
-                continue
-        if trainer_type and card.get("trainerType") != trainer_type:
-            continue
-        if rarity and card.get("rarity") != rarity:
-            continue
+    for card in search_space:
         if category and card.get("category") != category:
             continue
         if stage and card.get("stage") != stage:
@@ -112,6 +134,12 @@ async def get_cards(
         result = result[offset:]
     if limit is not None:
         result = result[:limit]
+    if start_ts is not None:
+        logger.info(
+            "get_cards filtered %d cards in %.4fs",
+            len(result),
+            time.perf_counter() - start_ts,
+        )
     return result
 
 
@@ -128,7 +156,11 @@ async def search_cards(
     q_lower = q.lower()
     requested = None
     if fields:
-        requested = [f.strip() for f in fields.split(",") if f.strip() in {"name", "abilities", "attacks"}]
+        requested = [
+            f.strip()
+            for f in fields.split(",")
+            if f.strip() in {"name", "abilities", "attacks"}
+        ]
     for card in _cards:
         search_data = _search_index.get(card["id"], {}).get(lang, {})
         text = (
