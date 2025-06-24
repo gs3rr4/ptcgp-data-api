@@ -182,3 +182,17 @@ def test_validation_errors():
 
     resp = client.post("/users/alice/have", json={"cards": "foo"}, headers=HEADERS)
     assert resp.status_code == 422
+
+
+def test_invalid_vote_value():
+    resp = client.post(
+        "/decks/1/vote",
+        params={"vote": "invalid"},
+        headers=HEADERS,
+    )
+    assert resp.status_code == 422
+
+
+def test_invalid_lang_rejected():
+    resp = client.get("/cards", params={"lang": "xx"})
+    assert resp.status_code == 422

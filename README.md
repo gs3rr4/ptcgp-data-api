@@ -45,6 +45,9 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 8. Für schreibende Endpunkte kann optional ein API-Key über die
    Umgebungsvariable `API_KEY` aktiviert werden. Der Client muss den gleichen
    Schlüssel im Header `X-API-Key` mitsenden.
+9. Mit `DATA_DIR` kann ein alternativer Pfad zu den JSON-Daten angegeben werden.
+10. Vor Commits sollte `ruff .` ausgeführt werden, um Linting-Probleme zu
+    vermeiden.
 
 ## Modulstruktur
 
@@ -85,10 +88,11 @@ Schlüssel nicht überein, antwortet die API mit `401 Unauthorized`.
 `GET /cards`
 
 - **Antwort:** Array mit Karten als JSON-Objekte
-- Optionaler Query-Parameter `lang` bestimmt Sprache von Kartentext und Bild (Standard: `de`)
+- Optionaler Query-Parameter `lang` bestimmt Sprache von Kartentext und Bild (Standard: `de`).
+  Erlaubte Werte: `de`, `en`, `fr`, `es`, `it`, `pt-br`, `ko`.
 - Weitere optionale Filter:
   - `set_id` – nur Karten eines bestimmten Sets
-  - `type` – Pokémon-Typ
+ - `type` – Pokémon-Typ
   - `trainer_type` (Alias `trainerType`) – Trainer-Typ wie `Supporter` oder `Item`
   - `rarity` – Seltenheit der Karte
   - `category` – Kategorie der Karte (z. B. `Pokemon` oder `Trainer`)

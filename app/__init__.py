@@ -1,6 +1,7 @@
 import logging
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from .auth import API_KEY
@@ -33,6 +34,13 @@ app.add_middleware(
 app.include_router(cards.router)
 app.include_router(users.router)
 app.include_router(meta.router)
+
+
+@app.exception_handler(Exception)
+async def log_unhandled_exception(request: Request, exc: Exception) -> JSONResponse:
+    """Log unhandled exceptions and return a generic error."""
+    logger.error("Unhandled exception: %s", exc, exc_info=True)
+    return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
 
 
 @app.on_event("startup")

@@ -1,5 +1,25 @@
 from typing import List
 from pydantic import BaseModel, Field
+from enum import Enum
+
+
+class Language(str, Enum):
+    """Allowed languages for card text and metadata."""
+
+    de = "de"
+    en = "en"
+    fr = "fr"
+    es = "es"
+    it = "it"
+    pt_br = "pt-br"
+    ko = "ko"
+
+
+class VoteDirection(str, Enum):
+    """Vote direction for decks."""
+
+    up = "up"
+    down = "down"
 
 
 class CardList(BaseModel):

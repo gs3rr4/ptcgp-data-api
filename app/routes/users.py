@@ -1,10 +1,20 @@
+"""Routes for user trading, decks and groups."""
+
 from fastapi import APIRouter, HTTPException, Query
-from typing import Dict, List
+from typing import Dict
 import logging
 
 from fastapi import Depends
 
-from models import CardList, DeckCreate, Deck, GroupCreate, Group, JoinGroupRequest
+from models import (
+    CardList,
+    DeckCreate,
+    Deck,
+    GroupCreate,
+    Group,
+    JoinGroupRequest,
+    VoteDirection,
+)
 from ..auth import verify_api_key
 
 logger = logging.getLogger(__name__)
@@ -20,6 +30,7 @@ _group_counter = 1
 
 @router.post("/users/{user_id}/have")
 def set_have(user_id: str, payload: CardList, _: None = Depends(verify_api_key)):
+    """Store the cards a user owns."""
     user = _users.setdefault(user_id, {"have": set(), "want": set()})
     user["have"] = set(payload.cards)
     return {"user": user_id, "have": sorted(user["have"])}
@@ -27,6 +38,7 @@ def set_have(user_id: str, payload: CardList, _: None = Depends(verify_api_key))
 
 @router.post("/users/{user_id}/want")
 def set_want(user_id: str, payload: CardList, _: None = Depends(verify_api_key)):
+    """Store the cards a user is looking for."""
     user = _users.setdefault(user_id, {"have": set(), "want": set()})
     user["want"] = set(payload.cards)
     return {"user": user_id, "want": sorted(user["want"])}
@@ -34,6 +46,7 @@ def set_want(user_id: str, payload: CardList, _: None = Depends(verify_api_key))
 
 @router.get("/users/{user_id}")
 def get_user(user_id: str):
+    """Return the stored card lists for a single user."""
     user = _users.get(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -42,6 +55,7 @@ def get_user(user_id: str):
 
 @router.get("/trades/matches")
 def trade_matches():
+    """Return simple trade suggestions between all known users."""
     matches = []
     ids = list(_users.keys())
     for i, a in enumerate(ids):
@@ -71,11 +85,13 @@ def create_deck(deck: DeckCreate, _: None = Depends(verify_api_key)) -> Deck:
 
 @router.get("/decks")
 def list_decks():
+    """List all created decks."""
     return list(_decks.values())
 
 
 @router.get("/decks/{deck_id}")
 def get_deck(deck_id: str):
+    """Return a deck by its ID."""
     deck = _decks.get(deck_id)
     if not deck:
         raise HTTPException(status_code=404, detail="Deck not found")
@@ -85,21 +101,23 @@ def get_deck(deck_id: str):
 @router.post("/decks/{deck_id}/vote")
 def vote_deck(
     deck_id: str,
-    vote: str = Query(..., regex="^(up|down)$"),
+    vote: VoteDirection = Query(..., description="up or down"),
     _: None = Depends(verify_api_key),
 ) -> Deck:
     deck = _decks.get(deck_id)
     if not deck:
         raise HTTPException(status_code=404, detail="Deck not found")
-    if vote == "up":
+    if vote == VoteDirection.up:
         deck["votes"] += 1
-    elif vote == "down":
+    elif vote == VoteDirection.down:
         deck["votes"] -= 1
     return deck
 
 
 @router.post("/groups")
 def create_group(group: GroupCreate, _: None = Depends(verify_api_key)) -> Group:
+    """Create a new group and return it."""
+
     global _group_counter
     group_id = str(_group_counter)
     _group_counter += 1
@@ -111,6 +129,8 @@ def create_group(group: GroupCreate, _: None = Depends(verify_api_key)) -> Group
 def join_group(
     group_id: str, payload: JoinGroupRequest, _: None = Depends(verify_api_key)
 ) -> Group:
+    """Add a user to a group."""
+
     group = _groups.get(group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")

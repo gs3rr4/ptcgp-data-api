@@ -13,6 +13,10 @@
 - Filter indexes for sets, types and rarity for faster `/cards` queries.
 - Optional profiling via `PROFILE_FILTERS` environment variable.
 - Benchmark test suite in `tests/performance` (requires `pytest-benchmark`).
+- `Language` and `VoteDirection` enums for better validation.
+- `DATA_DIR` environment variable to configure the data path.
+- Global exception handler that logs unexpected errors.
+- GitHub Actions workflow with `ruff` linting and tests.
 
 ### Changed
 - Endpoints now await image URL resolution.
