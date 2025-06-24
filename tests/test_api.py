@@ -2,6 +2,7 @@ import os
 import sys
 import pytest
 import httpx
+import logging
 
 # Skip external image checks during tests
 os.environ["SKIP_IMAGE_CHECKS"] = "1"
@@ -90,7 +91,8 @@ def test_user_endpoints():
     assert data["want"] == want_cards
 
 
-def test_deck_and_group_flow():
+def test_deck_and_group_flow(caplog):
+    caplog.set_level(logging.INFO)
     # create deck
     resp = client.post("/decks", json={"name": "Test Deck", "cards": ["001"]})
     assert resp.status_code == 200
@@ -110,6 +112,7 @@ def test_deck_and_group_flow():
     resp = client.post(f"/decks/{deck_id}/vote", params={"vote": "up"})
     assert resp.status_code == 200
     assert resp.json()["votes"] == 1
+    assert any("Created deck" in r.message for r in caplog.records)
 
     # create group
     resp = client.post("/groups", json={"name": "Test Group"})

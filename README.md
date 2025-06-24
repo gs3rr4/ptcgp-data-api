@@ -37,6 +37,8 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 5. Optional kann die Umgebungsvariable `SKIP_IMAGE_CHECKS=1` gesetzt werden,
    um die Prüfung von Bild-URLs (asynchroner HTTP-HEAD, Timeout 3&nbsp;s,
    zwischengespeichert für 24&nbsp;Stunden) zu überspringen.
+6. Mit `LOG_LEVEL` kann die Ausführlichkeit der Logs gesteuert werden
+   (z. B. `LOG_LEVEL=DEBUG`).
 
 ## Modulstruktur
 
@@ -44,6 +46,12 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 - `app/` – Paket mit Anwendungslogik
   - `data.py` – lädt JSON-Daten und baut den Suchindex
   - `routes/` – einzelne Router wie `cards.py` und `users.py`
+
+---
+## Logging
+
+Das Logging kann über die Umgebungsvariable `LOG_LEVEL` angepasst werden. Der
+Standardwert ist `INFO`. Bei `DEBUG` werden zusätzliche Details ausgegeben.
 
 ---
 ## Endpunkte

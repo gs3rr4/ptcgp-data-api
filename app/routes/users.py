@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import Dict, List
+import logging
 
 from models import CardList, DeckCreate, Deck, GroupCreate, Group, JoinGroupRequest
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # In-memory stores for demo purposes
@@ -50,6 +52,7 @@ def trade_matches():
 
 @router.post("/decks")
 def create_deck(deck: DeckCreate) -> Deck:
+    """Create a new deck and return it."""
     global _deck_counter
     deck_id = str(_deck_counter)
     _deck_counter += 1
@@ -59,6 +62,7 @@ def create_deck(deck: DeckCreate) -> Deck:
         "cards": deck.cards,
         "votes": 0,
     }
+    logger.info("Created deck %s with %d cards", deck_id, len(deck.cards))
     return _decks[deck_id]
 
 
