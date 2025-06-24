@@ -20,7 +20,7 @@ jobs:
       - run: ruff check .
       - run: pip-audit
       - name: Snyk scan
-        uses: snyk/actions/python@v1
+        uses: snyk/actions/python@0.4.0
         with:
           command: test
         env:
