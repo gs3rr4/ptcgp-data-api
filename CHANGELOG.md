@@ -30,6 +30,7 @@
 - Image URL checks cached for 24 hours to improve performance.
 - CI workflow uses `ruff check` for compatibility.
 - Async tests share a session-scoped event loop.
+- Startup instructions now reference `ptcgp_api:app` and document Railway command.
 
 ### Removed
 - Manual `sys.path` adjustments in tests; project installs as editable package.

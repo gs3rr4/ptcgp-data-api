@@ -15,7 +15,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: pip install -e . -r requirements-dev.txt
       - run: pre-commit run --all-files --show-diff-on-failure
       - run: ruff check .
       - run: pip-audit

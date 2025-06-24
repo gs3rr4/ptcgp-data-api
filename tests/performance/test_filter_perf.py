@@ -4,7 +4,7 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
-from main import app
+from ptcgp_api import app
 
 os.environ["SKIP_IMAGE_CHECKS"] = "1"
 os.environ["API_KEY"] = "testkey"
