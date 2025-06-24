@@ -71,10 +71,10 @@ def test_user_endpoints():
     have_cards = ["001"]
     want_cards = ["002"]
 
-    resp = client.post(f"/users/{user}/have", json=have_cards)
+    resp = client.post(f"/users/{user}/have", json={"cards": have_cards})
     assert resp.status_code == 200
 
-    resp = client.post(f"/users/{user}/want", json=want_cards)
+    resp = client.post(f"/users/{user}/want", json={"cards": want_cards})
     assert resp.status_code == 200
 
     resp = client.get(f"/users/{user}")
@@ -86,7 +86,7 @@ def test_user_endpoints():
 
 def test_deck_and_group_flow():
     # create deck
-    resp = client.post("/decks", params={"name": "Test Deck"}, json=["001"])
+    resp = client.post("/decks", json={"name": "Test Deck", "cards": ["001"]})
     assert resp.status_code == 200
     deck = resp.json()
     deck_id = deck["id"]
@@ -106,13 +106,13 @@ def test_deck_and_group_flow():
     assert resp.json()["votes"] == 1
 
     # create group
-    resp = client.post("/groups", params={"name": "Test Group"})
+    resp = client.post("/groups", json={"name": "Test Group"})
     assert resp.status_code == 200
     group = resp.json()
     group_id = group["id"]
 
     user = "bob"
-    resp = client.post(f"/groups/{group_id}/join", params={"user_id": user})
+    resp = client.post(f"/groups/{group_id}/join", json={"user_id": user})
     assert resp.status_code == 200
     assert user in resp.json()["members"]
 
@@ -133,7 +133,19 @@ def test_get_unknown_set():
 
 def test_trade_matches_empty(monkeypatch):
     import main
+
     monkeypatch.setattr(main, "_users", {})
     resp = client.get("/trades/matches")
     assert resp.status_code == 200
     assert resp.json() == []
+
+
+def test_validation_errors():
+    resp = client.post("/decks", json={"cards": "foo"})
+    assert resp.status_code == 422
+
+    resp = client.post("/groups", json={})
+    assert resp.status_code == 422
+
+    resp = client.post("/users/alice/have", json={"cards": "foo"})
+    assert resp.status_code == 422

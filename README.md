@@ -166,6 +166,14 @@ eine ID-Anfrage reagieren kann.
 - `GET /users/{id}` – gibt die aktuellen Listen eines Nutzers zurück
 - `GET /trades/matches` – listet einfache Tauschvorschläge zwischen Nutzern
 
+**Beispiel:**
+
+```json
+{
+  "cards": ["001", "002"]
+}
+```
+
 ### Deck-Verwaltung
 
 - `POST /decks` – neues Deck anlegen (`name`, `cards`)
@@ -173,11 +181,36 @@ eine ID-Anfrage reagieren kann.
 - `GET /decks/{deck_id}` – einzelnes Deck anzeigen
 - `POST /decks/{deck_id}/vote` – Deck bewerten (`vote=up|down`)
 
+**Beispiel für POST /decks:**
+
+```json
+{
+  "name": "Test Deck",
+  "cards": ["001"]
+}
+```
+
 ### Godpack-Gruppen
 
 - `POST /groups` – neue Gruppe anlegen (`name`)
 - `POST /groups/{group_id}/join` – Gruppe beitreten (`user_id`)
 - `GET /groups/{group_id}` – Gruppendetails abrufen
+
+**Beispiel für POST /groups:**
+
+```json
+{
+  "name": "Test Group"
+}
+```
+
+**Beispiel für POST /groups/{group_id}/join:**
+
+```json
+{
+  "user_id": "alice"
+}
+```
 
 ---
 
