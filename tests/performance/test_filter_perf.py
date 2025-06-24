@@ -1,13 +1,16 @@
+# ruff: noqa: E402
 import os
 import sys
+
+base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+sys.path.insert(0, base)
+
 import pytest
 from fastapi.testclient import TestClient
+from main import app
 
 os.environ["SKIP_IMAGE_CHECKS"] = "1"
 os.environ["API_KEY"] = "testkey"
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from main import app
 
 pytest.importorskip("pytest_benchmark")
 

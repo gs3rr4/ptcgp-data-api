@@ -3,11 +3,11 @@
 import json
 import os
 from typing import Dict, List, Any
-from models import Language
+from .models import Language
 
 
 # Directory of this file -> repository root
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DATA_DIR = os.getenv("DATA_DIR", os.path.join(BASE_DIR, "data"))
 
 CARDS_PATH = os.path.join(DATA_DIR, "cards.json")

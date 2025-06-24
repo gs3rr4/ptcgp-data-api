@@ -27,3 +27,9 @@
 - CI workflow uses `ruff check` for compatibility.
 - Async tests share a session-scoped event loop.
 
+- Structured JSON logging using structlog with file rotation.
+- CI now runs pre-commit and pip-audit for security scanning.
+- Application startup creates a single AsyncClient and closes it on shutdown.
+- All user-facing errortexte sind jetzt auf Deutsch.
+- Repository moved to src/ layout.
+- Example environment file and MIT license added.

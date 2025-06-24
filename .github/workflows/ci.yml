@@ -9,8 +9,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: pre-commit run --all-files --show-diff-on-failure
       - run: ruff check .
-      - run: pytest --cov=app --cov-report=xml
+      - run: pip-audit
+      - run: pytest --cov=ptcgp_api --cov-report=xml
       - uses: actions/upload-artifact@v4
         with:
           name: coverage

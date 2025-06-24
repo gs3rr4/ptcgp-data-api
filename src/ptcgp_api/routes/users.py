@@ -2,11 +2,11 @@
 
 from fastapi import APIRouter, HTTPException, Query
 from typing import Dict
-import logging
+import structlog
 
 from fastapi import Depends
 
-from models import (
+from ..models import (
     CardList,
     DeckCreate,
     Deck,
@@ -17,7 +17,7 @@ from models import (
 )
 from ..auth import verify_api_key
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 # In-memory stores for demo purposes
@@ -49,7 +49,7 @@ def get_user(user_id: str):
     """Return the stored card lists for a single user."""
     user = _users.get(user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
     return {"user": user_id, "have": sorted(user["have"]), "want": sorted(user["want"])}
 
 
@@ -94,7 +94,7 @@ def get_deck(deck_id: str):
     """Return a deck by its ID."""
     deck = _decks.get(deck_id)
     if not deck:
-        raise HTTPException(status_code=404, detail="Deck not found")
+        raise HTTPException(status_code=404, detail="Deck nicht gefunden")
     return deck
 
 
@@ -106,7 +106,7 @@ def vote_deck(
 ) -> Deck:
     deck = _decks.get(deck_id)
     if not deck:
-        raise HTTPException(status_code=404, detail="Deck not found")
+        raise HTTPException(status_code=404, detail="Deck nicht gefunden")
     if vote == VoteDirection.up:
         deck["votes"] += 1
     elif vote == VoteDirection.down:
@@ -133,7 +133,7 @@ def join_group(
 
     group = _groups.get(group_id)
     if not group:
-        raise HTTPException(status_code=404, detail="Group not found")
+        raise HTTPException(status_code=404, detail="Gruppe nicht gefunden")
     if payload.user_id not in group.get("members", []):
         group["members"].append(payload.user_id)
     return group
@@ -143,5 +143,5 @@ def join_group(
 def get_group(group_id: str):
     group = _groups.get(group_id)
     if not group:
-        raise HTTPException(status_code=404, detail="Group not found")
+        raise HTTPException(status_code=404, detail="Gruppe nicht gefunden")
     return group

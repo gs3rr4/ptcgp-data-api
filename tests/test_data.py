@@ -1,4 +1,4 @@
-from app.data import build_search_index, filter_language
+from ptcgp_api.data import build_search_index, filter_language
 
 
 def test_build_search_index():
