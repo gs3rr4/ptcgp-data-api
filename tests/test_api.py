@@ -10,6 +10,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from fastapi.testclient import TestClient
 from main import app
+import app.routes.cards as cards_routes
+import app.routes.users as users_routes
 
 client = TestClient(app)
 
@@ -24,7 +26,7 @@ def disable_network(monkeypatch):
     class DummyResp:
         status_code = 200
 
-    monkeypatch.setattr("main._image_url", fake_image_url)
+    monkeypatch.setattr(cards_routes, "_image_url", fake_image_url)
 
     async def dummy_head(*a, **k):
         return DummyResp()
@@ -136,9 +138,7 @@ def test_get_unknown_set():
 
 
 def test_trade_matches_empty(monkeypatch):
-    import main
-
-    monkeypatch.setattr(main, "_users", {})
+    monkeypatch.setattr(users_routes, "_users", {})
     resp = client.get("/trades/matches")
     assert resp.status_code == 200
     assert resp.json() == []

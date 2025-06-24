@@ -38,6 +38,13 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
    um die Prüfung von Bild-URLs (asynchroner HTTP-HEAD, Timeout 3&nbsp;s,
    zwischengespeichert für 24&nbsp;Stunden) zu überspringen.
 
+## Modulstruktur
+
+- `main.py` – Einstiegspunkt, exportiert die FastAPI-Instanz
+- `app/` – Paket mit Anwendungslogik
+  - `data.py` – lädt JSON-Daten und baut den Suchindex
+  - `routes/` – einzelne Router wie `cards.py` und `users.py`
+
 ---
 ## Endpunkte
 
