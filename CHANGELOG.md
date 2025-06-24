@@ -21,4 +21,5 @@
 ### Changed
 - Endpoints now await image URL resolution.
 - Image URL checks cached for 24 hours to improve performance.
+- CI workflow uses `ruff check` for compatibility.
 

@@ -46,7 +46,7 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
    Umgebungsvariable `API_KEY` aktiviert werden. Der Client muss den gleichen
    Schlüssel im Header `X-API-Key` mitsenden.
 9. Mit `DATA_DIR` kann ein alternativer Pfad zu den JSON-Daten angegeben werden.
-10. Vor Commits sollte `ruff .` ausgeführt werden, um Linting-Probleme zu
+10. Vor Commits sollte `ruff check .` ausgeführt werden, um Linting-Probleme zu
     vermeiden.
 
 ## Modulstruktur
