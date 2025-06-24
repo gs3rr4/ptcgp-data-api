@@ -1,7 +1,7 @@
 import os
 import sys
 import pytest
-import requests
+import httpx
 
 # Skip external image checks during tests
 os.environ["SKIP_IMAGE_CHECKS"] = "1"
@@ -18,14 +18,18 @@ client = TestClient(app)
 def disable_network(monkeypatch):
     """Avoid real network calls during tests."""
 
-    def fake_image_url(lang: str, set_id: str, local_id: str) -> str:
+    async def fake_image_url(lang: str, set_id: str, local_id: str) -> str:
         return f"/mock/{lang}/{set_id}/{local_id}.webp"
 
     class DummyResp:
         status_code = 200
 
     monkeypatch.setattr("main._image_url", fake_image_url)
-    monkeypatch.setattr(requests, "head", lambda *a, **k: DummyResp())
+
+    async def dummy_head(*a, **k):
+        return DummyResp()
+
+    monkeypatch.setattr(httpx.AsyncClient, "head", dummy_head)
 
 
 def test_cards_returns_list():
