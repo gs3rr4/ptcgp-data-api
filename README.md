@@ -14,7 +14,12 @@ pip install -e . -r requirements-dev.txt
 
 ## Starten
 ```bash
-uvicorn main:app --reload
+uvicorn ptcgp_api:app --reload
+```
+
+### Railway
+```bash
+uvicorn ptcgp_api:app --host 0.0.0.0 --port $PORT
 ```
 
 ## Umgebungsvariablen
