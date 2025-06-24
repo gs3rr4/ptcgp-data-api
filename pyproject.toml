@@ -3,3 +3,23 @@ line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F"]
+
+[project]
+name = "ptcgp-api"
+version = "0.1.0"
+description = "Pokémon TCG Pocket Data API"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.115.13",
+    "uvicorn[standard]==0.34.3",
+    "httpx==0.28.1",
+    "cachetools==6.1.0",
+    "structlog==24.1.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

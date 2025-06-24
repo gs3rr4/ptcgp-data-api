@@ -40,12 +40,17 @@ async def _image_url(
     cached = _image_cache.get(high)
     if cached is not None:
         return high if cached else f"{base}/low.webp"
-    try:
-        resp = await client.head(high, timeout=IMAGE_TIMEOUT)
-        ok = resp.status_code == 200
-    except Exception as exc:
-        logger.error("HEAD request failed for %s: %s", high, exc)
-        ok = False
+    ok = False
+    for attempt in range(2):
+        try:
+            resp = await client.head(high, timeout=IMAGE_TIMEOUT)
+            ok = resp.status_code == 200
+            if ok:
+                break
+        except Exception as exc:
+            logger.error("HEAD request failed for %s: %s", high, exc)
+        if attempt == 0 and not ok:
+            logger.debug("Retrying image HEAD request for %s", high)
     _image_cache[high] = ok
     return high if ok else f"{base}/low.webp"
 

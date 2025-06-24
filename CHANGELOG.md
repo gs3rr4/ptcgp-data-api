@@ -18,6 +18,9 @@
 - Global exception handler that logs unexpected errors.
 - GitHub Actions workflow with `ruff` linting and tests.
 - `IMAGE_TIMEOUT` environment variable for configurable image request timeout.
+- Packaging metadata in `pyproject.toml` allowing `pip install -e .`.
+- Dependency caching and Snyk scanning in CI workflow.
+- `pytest.ini` enabling `pytest-timeout`.
 - Package versions pinned in `requirements*.txt` for reproducible installs.
 - Coverage reporting via `pytest-cov` in CI.
 
@@ -26,6 +29,9 @@
 - Image URL checks cached for 24 hours to improve performance.
 - CI workflow uses `ruff check` for compatibility.
 - Async tests share a session-scoped event loop.
+
+### Removed
+- Manual `sys.path` adjustments in tests; project installs as editable package.
 
 - Structured JSON logging using structlog with file rotation.
 - CI now runs pre-commit and pip-audit for security scanning.
