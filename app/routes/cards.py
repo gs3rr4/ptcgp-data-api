@@ -3,9 +3,9 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 import os
-import httpx
 import logging
 import time
+import httpx
 from cachetools import TTLCache
 
 from ..data import (
@@ -24,6 +24,8 @@ from models import Language
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+IMAGE_TIMEOUT = float(os.getenv("IMAGE_TIMEOUT", "3"))
+_client = httpx.AsyncClient()
 _image_cache: TTLCache[str, bool] = TTLCache(maxsize=256, ttl=60 * 60 * 24)
 
 
@@ -38,8 +40,7 @@ async def _image_url(lang: Language | str, set_id: str, local_id: str) -> str:
     if cached is not None:
         return high if cached else f"{base}/low.webp"
     try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.head(high, timeout=3)
+        resp = await _client.head(high, timeout=IMAGE_TIMEOUT)
         ok = resp.status_code == 200
     except Exception as exc:
         logger.error("HEAD request failed for %s: %s", high, exc)

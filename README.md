@@ -22,10 +22,10 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
    ```
 2. Abhängigkeiten installieren
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements.txt -r requirements-dev.txt
    ```
-   **Hinweis:** Führe diesen Schritt unbedingt vor dem Start von `uvicorn` aus,
-   um Fehler wie `ModuleNotFoundError: requests` zu vermeiden.
+   Die Versionsnummern sind fest eingetragen, um reproduzierbare Umgebungen zu
+   gewährleisten.
 3. API lokal starten
    ```bash
    uvicorn main:app --reload
@@ -37,16 +37,18 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 5. Optional kann die Umgebungsvariable `SKIP_IMAGE_CHECKS=1` gesetzt werden,
    um die Prüfung von Bild-URLs (asynchroner HTTP-HEAD, Timeout 3&nbsp;s,
    zwischengespeichert für 24&nbsp;Stunden) zu überspringen.
-6. Mit `LOG_LEVEL` kann die Ausführlichkeit der Logs gesteuert werden
+6. Mit `IMAGE_TIMEOUT` lässt sich das Timeout für Bild-URLs in Sekunden
+   konfigurieren (Standard: `3`).
+7. Mit `LOG_LEVEL` kann die Ausführlichkeit der Logs gesteuert werden
    (z. B. `LOG_LEVEL=DEBUG`).
-7. Mit `ALLOW_ORIGINS` lassen sich die erlaubten CORS-Ursprünge
-   konfigurieren, z.&nbsp;B. `ALLOW_ORIGINS=https://example.com,https://foo.bar`.
+8. Mit `ALLOW_ORIGINS` lassen sich die erlaubten CORS-Ursprünge
+    konfigurieren, z.&nbsp;B. `ALLOW_ORIGINS=https://example.com,https://foo.bar`.
    Standard ist `*`.
-8. Für schreibende Endpunkte kann optional ein API-Key über die
-   Umgebungsvariable `API_KEY` aktiviert werden. Der Client muss den gleichen
-   Schlüssel im Header `X-API-Key` mitsenden.
-9. Mit `DATA_DIR` kann ein alternativer Pfad zu den JSON-Daten angegeben werden.
-10. Vor Commits sollte `ruff check .` ausgeführt werden, um Linting-Probleme zu
+9. Für schreibende Endpunkte kann optional ein API-Key über die
+    Umgebungsvariable `API_KEY` aktiviert werden. Der Client muss den gleichen
+    Schlüssel im Header `X-API-Key` mitsenden.
+10. Mit `DATA_DIR` kann ein alternativer Pfad zu den JSON-Daten angegeben werden.
+11. Vor Commits sollte `ruff check .` ausgeführt werden, um Linting-Probleme zu
     vermeiden.
 
 ## Modulstruktur
@@ -108,7 +110,7 @@ Schlüssel nicht überein, antwortet die API mit `401 Unauthorized`.
 - Ohne Angabe wird nur Deutsch zurückgegeben.
   Das hochauflösende Bild (`high.webp`) wird nur dann verwendet, wenn es
   existiert; andernfalls liefert die API `low.webp`.
-  Die Prüfung erfolgt asynchron per HTTP-HEAD mit einem Timeout von 3&nbsp;Sekunden und wird für 24&nbsp;Stunden gecacht.
+  Die Prüfung erfolgt asynchron per HTTP-HEAD mit einem Timeout von `IMAGE_TIMEOUT` Sekunden (Standard 3) und wird für 24&nbsp;Stunden gecacht.
   Setze `SKIP_IMAGE_CHECKS`, um diese Prüfung zu deaktivieren und immer
   `high.webp` zu erhalten.
 
@@ -128,7 +130,7 @@ Schlüssel nicht überein, antwortet die API mit `401 Unauthorized`.
 - Ohne Angabe wird nur Deutsch ausgegeben.
 - Beispiel für Englisch: `/cards/{card_id}?lang=en`
 - Das hochauflösende Bild (`high.webp`) wird nur dann verwendet, wenn es existiert.
-  Die Prüfung erfolgt asynchron per HTTP-HEAD mit einem Timeout von 3&nbsp;Sekunden und wird für 24&nbsp;Stunden gecacht.
+  Die Prüfung erfolgt asynchron per HTTP-HEAD mit einem Timeout von `IMAGE_TIMEOUT` Sekunden (Standard 3) und wird für 24&nbsp;Stunden gecacht.
   Das Ergebnis der ersten Prüfung wird zwischengespeichert, um weitere Anfragen
   schneller zu beantworten.
 
