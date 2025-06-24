@@ -3,7 +3,10 @@
 import os
 from fastapi import Header, HTTPException, status
 
-def verify_api_key(api_key: str | None = Header(None, alias="X-API-Key")) -> None:
+
+def verify_api_key(
+    api_key: str | None = Header(None, alias="X-API-Key"),
+) -> None:
     """Validate the API key header for write operations."""
     expected = os.getenv("API_KEY")
     if expected and api_key != expected:

@@ -22,7 +22,9 @@ logging.basicConfig(
     format="%(message)s",
 )
 structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(getattr(logging, LOG_LEVEL)),
+    wrapper_class=structlog.make_filtering_bound_logger(
+        getattr(logging, LOG_LEVEL),
+    ),
     processors=[
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.add_log_level,
@@ -54,10 +56,16 @@ app.include_router(meta.router)
 
 
 @app.exception_handler(Exception)
-async def log_unhandled_exception(request: Request, exc: Exception) -> JSONResponse:
+async def log_unhandled_exception(
+    request: Request,
+    exc: Exception,
+) -> JSONResponse:
     """Log unhandled exceptions and return a generic error."""
     logger.error("Unhandled exception: %s", exc, exc_info=True)
-    return JSONResponse(status_code=500, content={"detail": "Interner Serverfehler"})
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Interner Serverfehler"},
+    )
 
 
 @app.on_event("startup")

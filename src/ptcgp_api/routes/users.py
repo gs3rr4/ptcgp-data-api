@@ -29,7 +29,11 @@ _group_counter = 1
 
 
 @router.post("/users/{user_id}/have")
-def set_have(user_id: str, payload: CardList, _: None = Depends(verify_api_key)):
+def set_have(
+    user_id: str,
+    payload: CardList,
+    _: None = Depends(verify_api_key),
+):
     """Store the cards a user owns."""
     user = _users.setdefault(user_id, {"have": set(), "want": set()})
     user["have"] = set(payload.cards)
@@ -37,7 +41,11 @@ def set_have(user_id: str, payload: CardList, _: None = Depends(verify_api_key))
 
 
 @router.post("/users/{user_id}/want")
-def set_want(user_id: str, payload: CardList, _: None = Depends(verify_api_key)):
+def set_want(
+    user_id: str,
+    payload: CardList,
+    _: None = Depends(verify_api_key),
+):
     """Store the cards a user is looking for."""
     user = _users.setdefault(user_id, {"have": set(), "want": set()})
     user["want"] = set(payload.cards)
@@ -50,7 +58,11 @@ def get_user(user_id: str):
     user = _users.get(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
-    return {"user": user_id, "have": sorted(user["have"]), "want": sorted(user["want"])}
+    return {
+        "user": user_id,
+        "have": sorted(user["have"]),
+        "want": sorted(user["want"]),
+    }
 
 
 @router.get("/trades/matches")
@@ -59,7 +71,7 @@ def trade_matches():
     matches = []
     ids = list(_users.keys())
     for i, a in enumerate(ids):
-        for b in ids[i + 1 :]:
+        for b in ids[i + 1 :]:  # noqa: E203
             ua = _users[a]
             ub = _users[b]
             if ua["have"] & ub["want"] and ub["have"] & ua["want"]:
@@ -115,19 +127,28 @@ def vote_deck(
 
 
 @router.post("/groups")
-def create_group(group: GroupCreate, _: None = Depends(verify_api_key)) -> Group:
+def create_group(
+    group: GroupCreate,
+    _: None = Depends(verify_api_key),
+) -> Group:
     """Create a new group and return it."""
 
     global _group_counter
     group_id = str(_group_counter)
     _group_counter += 1
-    _groups[group_id] = {"id": group_id, "name": group.name, "members": []}
+    _groups[group_id] = {
+        "id": group_id,
+        "name": group.name,
+        "members": [],
+    }
     return _groups[group_id]
 
 
 @router.post("/groups/{group_id}/join")
 def join_group(
-    group_id: str, payload: JoinGroupRequest, _: None = Depends(verify_api_key)
+    group_id: str,
+    payload: JoinGroupRequest,
+    _: None = Depends(verify_api_key),
 ) -> Group:
     """Add a user to a group."""
 

@@ -48,4 +48,6 @@ pytest --benchmark-only
 - `POST /groups` / `POST /groups/{id}/join` / `GET /groups/{id}`
 
 Weitere Details siehe `CHANGELOG.md`.
-\n## Entwicklung\nFühre `pre-commit install` aus, um automatische Formatierung und Linting sicherzustellen. Logs werden strukturiert in `logs/app.log` mit Rotationsdateien geschrieben.
+
+## Entwicklung
+Führe `pre-commit install` aus, um automatische Formatierung und Linting sicherzustellen. Logs werden strukturiert in `logs/app.log` mit Rotationsdateien geschrieben.

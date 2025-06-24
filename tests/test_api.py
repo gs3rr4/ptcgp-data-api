@@ -1,20 +1,19 @@
+import logging
 import os
 import sys
-import pytest
-import logging
-
-# Skip external image checks during tests
-os.environ["SKIP_IMAGE_CHECKS"] = "1"
-# Enable API key authentication for tests
-os.environ["API_KEY"] = "testkey"
 
 sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+    0,
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")),
 )
 
-from fastapi.testclient import TestClient
-from main import app
-import ptcgp_api.routes.users as users_routes
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from main import app  # noqa: E402
+import ptcgp_api.routes.users as users_routes  # noqa: E402
+
+os.environ["SKIP_IMAGE_CHECKS"] = "1"
+os.environ["API_KEY"] = "testkey"
 
 HEADERS = {"X-API-Key": "testkey"}
 
@@ -70,7 +69,10 @@ def test_get_card_by_id(client):
 
 
 def test_search_cards(client):
-    response = client.get("/cards/search", params={"q": "Arceus", "fields": "name"})
+    response = client.get(
+        "/cards/search",
+        params={"q": "Arceus", "fields": "name"},
+    )
     assert response.status_code == 200
     data = response.json()
     assert any(card["id"] == "001" for card in data)
@@ -134,13 +136,21 @@ def test_deck_and_group_flow(client, caplog):
     assert resp.status_code == 200
 
     # vote deck
-    resp = client.post(f"/decks/{deck_id}/vote", params={"vote": "up"}, headers=HEADERS)
+    resp = client.post(
+        f"/decks/{deck_id}/vote",
+        params={"vote": "up"},
+        headers=HEADERS,
+    )
     assert resp.status_code == 200
     assert resp.json()["votes"] == 1
     assert any("Created deck" in r.message for r in caplog.records)
 
     # create group
-    resp = client.post("/groups", json={"name": "Test Group"}, headers=HEADERS)
+    resp = client.post(
+        "/groups",
+        json={"name": "Test Group"},
+        headers=HEADERS,
+    )
     assert resp.status_code == 200
     group = resp.json()
     group_id = group["id"]
@@ -177,13 +187,25 @@ def test_trade_matches_empty(client, monkeypatch):
 
 
 def test_validation_errors(client):
-    resp = client.post("/decks", json={"cards": "foo"}, headers=HEADERS)
+    resp = client.post(
+        "/decks",
+        json={"cards": "foo"},
+        headers=HEADERS,
+    )
     assert resp.status_code == 422
 
-    resp = client.post("/groups", json={}, headers=HEADERS)
+    resp = client.post(
+        "/groups",
+        json={},
+        headers=HEADERS,
+    )
     assert resp.status_code == 422
 
-    resp = client.post("/users/alice/have", json={"cards": "foo"}, headers=HEADERS)
+    resp = client.post(
+        "/users/alice/have",
+        json={"cards": "foo"},
+        headers=HEADERS,
+    )
     assert resp.status_code == 422
 
 

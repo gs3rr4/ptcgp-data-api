@@ -1,4 +1,5 @@
 # ruff: noqa: E402
+# flake8: noqa
 import os
 import sys
 

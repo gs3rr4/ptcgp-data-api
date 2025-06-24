@@ -23,7 +23,11 @@ async def test_image_url_cache(monkeypatch):
             return R()
 
     client = DummyClient()
-    monkeypatch.setattr(cards_routes, "_image_cache", TTLCache(maxsize=10, ttl=10))
+    monkeypatch.setattr(
+        cards_routes,
+        "_image_cache",
+        TTLCache(maxsize=10, ttl=10),
+    )
 
     url1 = await cards_routes._image_url(client, "de", "A2a", "001")
     url2 = await cards_routes._image_url(client, "de", "A2a", "001")
@@ -44,7 +48,12 @@ async def test_image_url_timeout(monkeypatch, caplog):
     monkeypatch.setattr(cards_routes, "_image_cache", cache)
 
     caplog.set_level(logging.ERROR)
-    url = await cards_routes._image_url(client, "de", "A2a", "001")
+    url = await cards_routes._image_url(
+        client,
+        "de",
+        "A2a",
+        "001",
+    )
     assert url.endswith("low.webp")
     high = "https://assets.tcgdex.net/de/tcgp/A2a/001/high.webp"
     assert cache[high] is False

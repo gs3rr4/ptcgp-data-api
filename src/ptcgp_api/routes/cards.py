@@ -111,7 +111,9 @@ async def get_cards(
             if not evo:
                 continue
             names = evo.values() if isinstance(evo, dict) else [evo]
-            if not any(str(evolve_from).lower() == str(n).lower() for n in names):
+            if not any(
+                str(evolve_from).lower() == str(n).lower() for n in names
+            ):  # noqa: E501
                 continue
         if booster and booster not in card.get("boosters", []):
             continue
@@ -127,9 +129,15 @@ async def get_cards(
             weak_types = [w.get("type") for w in card.get("weaknesses", [])]
             if weakness not in weak_types:
                 continue
-        if retreat_min is not None and int(card.get("retreat", 0)) < retreat_min:
+        if (
+            retreat_min is not None
+            and int(card.get("retreat", 0)) < retreat_min  # noqa: E501
+        ):
             continue
-        if retreat_max is not None and int(card.get("retreat", 0)) > retreat_max:
+        if (
+            retreat_max is not None
+            and int(card.get("retreat", 0)) > retreat_max  # noqa: E501
+        ):
             continue
 
         c = card.copy()
@@ -160,7 +168,9 @@ async def search_cards(
     lang: Language = Language.de,
     fields: Optional[str] = Query(
         None,
-        description="Komma-getrennte Liste der Felder: name, abilities, attacks",
+        description=(
+            "Komma-getrennte Liste der Felder: name, abilities, attacks"
+        ),  # noqa: E501
     ),
 ):
     """Search cards by query string and optional fields."""
@@ -188,7 +198,10 @@ async def search_cards(
             c = card.copy()
             c["set"] = _sets.get(c["set_id"])
             c["image"] = await _image_url(
-                request.app.state.http_client, lang, c["set_id"], c["_local_id"]
+                request.app.state.http_client,
+                lang,
+                c["set_id"],
+                c["_local_id"],
             )
             del c["_local_id"]
             results.append(filter_language(c, lang))
@@ -196,7 +209,11 @@ async def search_cards(
 
 
 @router.get("/cards/{card_id}")
-async def get_card(request: Request, card_id: str, lang: Language = Language.de):
+async def get_card(
+    request: Request,
+    card_id: str,
+    lang: Language = Language.de,
+):
     card = _cards_by_id.get(card_id)
     if card is None:
         raise HTTPException(status_code=404, detail="Karte nicht gefunden")
