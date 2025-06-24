@@ -2,7 +2,10 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Dict, List
 import logging
 
+from fastapi import Depends
+
 from models import CardList, DeckCreate, Deck, GroupCreate, Group, JoinGroupRequest
+from ..auth import verify_api_key
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -16,14 +19,14 @@ _group_counter = 1
 
 
 @router.post("/users/{user_id}/have")
-def set_have(user_id: str, payload: CardList):
+def set_have(user_id: str, payload: CardList, _: None = Depends(verify_api_key)):
     user = _users.setdefault(user_id, {"have": set(), "want": set()})
     user["have"] = set(payload.cards)
     return {"user": user_id, "have": sorted(user["have"])}
 
 
 @router.post("/users/{user_id}/want")
-def set_want(user_id: str, payload: CardList):
+def set_want(user_id: str, payload: CardList, _: None = Depends(verify_api_key)):
     user = _users.setdefault(user_id, {"have": set(), "want": set()})
     user["want"] = set(payload.cards)
     return {"user": user_id, "want": sorted(user["want"])}
@@ -51,7 +54,7 @@ def trade_matches():
 
 
 @router.post("/decks")
-def create_deck(deck: DeckCreate) -> Deck:
+def create_deck(deck: DeckCreate, _: None = Depends(verify_api_key)) -> Deck:
     """Create a new deck and return it."""
     global _deck_counter
     deck_id = str(_deck_counter)
@@ -80,7 +83,11 @@ def get_deck(deck_id: str):
 
 
 @router.post("/decks/{deck_id}/vote")
-def vote_deck(deck_id: str, vote: str = Query(..., regex="^(up|down)$")) -> Deck:
+def vote_deck(
+    deck_id: str,
+    vote: str = Query(..., regex="^(up|down)$"),
+    _: None = Depends(verify_api_key),
+) -> Deck:
     deck = _decks.get(deck_id)
     if not deck:
         raise HTTPException(status_code=404, detail="Deck not found")
@@ -92,7 +99,7 @@ def vote_deck(deck_id: str, vote: str = Query(..., regex="^(up|down)$")) -> Deck
 
 
 @router.post("/groups")
-def create_group(group: GroupCreate) -> Group:
+def create_group(group: GroupCreate, _: None = Depends(verify_api_key)) -> Group:
     global _group_counter
     group_id = str(_group_counter)
     _group_counter += 1
@@ -101,7 +108,9 @@ def create_group(group: GroupCreate) -> Group:
 
 
 @router.post("/groups/{group_id}/join")
-def join_group(group_id: str, payload: JoinGroupRequest) -> Group:
+def join_group(
+    group_id: str, payload: JoinGroupRequest, _: None = Depends(verify_api_key)
+) -> Group:
     group = _groups.get(group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")

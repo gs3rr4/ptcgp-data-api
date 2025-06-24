@@ -39,6 +39,12 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
    zwischengespeichert für 24&nbsp;Stunden) zu überspringen.
 6. Mit `LOG_LEVEL` kann die Ausführlichkeit der Logs gesteuert werden
    (z. B. `LOG_LEVEL=DEBUG`).
+7. Mit `ALLOW_ORIGINS` lassen sich die erlaubten CORS-Ursprünge
+   konfigurieren, z.&nbsp;B. `ALLOW_ORIGINS=https://example.com,https://foo.bar`.
+   Standard ist `*`.
+8. Für schreibende Endpunkte kann optional ein API-Key über die
+   Umgebungsvariable `API_KEY` aktiviert werden. Der Client muss den gleichen
+   Schlüssel im Header `X-API-Key` mitsenden.
 
 ## Modulstruktur
 
@@ -52,6 +58,13 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 
 Das Logging kann über die Umgebungsvariable `LOG_LEVEL` angepasst werden. Der
 Standardwert ist `INFO`. Bei `DEBUG` werden zusätzliche Details ausgegeben.
+
+---
+## Authentifizierung
+
+Ist die Umgebungsvariable `API_KEY` gesetzt, müssen Schreibzugriffe den gleichen
+Schlüssel im Header `X-API-Key` mitsenden. Fehlt der Header oder stimmt der
+Schlüssel nicht überein, antwortet die API mit `401 Unauthorized`.
 
 ---
 ## Endpunkte
@@ -271,4 +284,4 @@ eine ID-Anfrage reagieren kann.
 
 ---
 
-**Letztes Update:** 2025-06-23
+**Letztes Update:** 2025-06-24
