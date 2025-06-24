@@ -35,7 +35,8 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
    pytest
    ```
 5. Optional kann die Umgebungsvariable `SKIP_IMAGE_CHECKS=1` gesetzt werden,
-   um die Prüfung von Bild-URLs (HTTP-HEAD, Timeout 3&nbsp;s) zu überspringen.
+   um die Prüfung von Bild-URLs (asynchroner HTTP-HEAD, Timeout 3&nbsp;s,
+   zwischengespeichert für 24&nbsp;Stunden) zu überspringen.
 
 ---
 ## Endpunkte
@@ -64,7 +65,7 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 - Ohne Angabe wird nur Deutsch zurückgegeben.
   Das hochauflösende Bild (`high.webp`) wird nur dann verwendet, wenn es
   existiert; andernfalls liefert die API `low.webp`.
-  Die Prüfung erfolgt per HTTP-HEAD mit einem Timeout von 3&nbsp;Sekunden.
+  Die Prüfung erfolgt asynchron per HTTP-HEAD mit einem Timeout von 3&nbsp;Sekunden und wird für 24&nbsp;Stunden gecacht.
   Setze `SKIP_IMAGE_CHECKS`, um diese Prüfung zu deaktivieren und immer
   `high.webp` zu erhalten.
 
@@ -84,7 +85,7 @@ Eine einfache, offene API für Pokémon TCG Pocket Kartendaten – bereitgestell
 - Ohne Angabe wird nur Deutsch ausgegeben.
 - Beispiel für Englisch: `/cards/{card_id}?lang=en`
 - Das hochauflösende Bild (`high.webp`) wird nur dann verwendet, wenn es existiert.
-  Die Prüfung erfolgt per HTTP-HEAD mit einem Timeout von 3&nbsp;Sekunden.
+  Die Prüfung erfolgt asynchron per HTTP-HEAD mit einem Timeout von 3&nbsp;Sekunden und wird für 24&nbsp;Stunden gecacht.
   Das Ergebnis der ersten Prüfung wird zwischengespeichert, um weitere Anfragen
   schneller zu beantworten.
 

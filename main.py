@@ -4,9 +4,13 @@ from typing import Optional, List, Dict
 from models import CardList, DeckCreate, Deck, GroupCreate, Group, JoinGroupRequest
 import json
 import os
-import requests
+import logging
+import httpx
+from cachetools import TTLCache
 
-_image_cache: Dict[str, bool] = {}
+logger = logging.getLogger(__name__)
+
+_image_cache: TTLCache[str, bool] = TTLCache(maxsize=256, ttl=60 * 60 * 24)
 
 app = FastAPI(title="PTCGP Data API", version="1.0")
 
@@ -123,30 +127,34 @@ def _filter_language(data, lang: str, default_lang: str = "de"):
 _search_index = _build_search_index(_cards)
 
 
-def _image_url(lang: str, set_id: str, local_id: str) -> str:
+async def _image_url(lang: str, set_id: str, local_id: str) -> str:
     """Return the best available image URL for a card.
 
-    Performs an HTTP ``HEAD`` request with a 3 second timeout to check for the
-    existence of the high resolution image unless ``SKIP_IMAGE_CHECKS`` is set.
+    Performs an asynchronous HTTP ``HEAD`` request with a 3 second timeout to
+    check for the existence of the high resolution image unless
+    ``SKIP_IMAGE_CHECKS`` is set. Results are cached for one day.
     """
 
     base = f"https://assets.tcgdex.net/{lang}/tcgp/{set_id}/{local_id}"
     high = f"{base}/high.webp"
     if os.getenv("SKIP_IMAGE_CHECKS"):
         return high
-    if high not in _image_cache:
-        try:
-            resp = requests.head(high, timeout=3)
-            _image_cache[high] = resp.status_code == 200
-        except requests.RequestException:
-            _image_cache[high] = False
-    if _image_cache[high]:
-        return high
-    return f"{base}/low.webp"
+    cached = _image_cache.get(high)
+    if cached is not None:
+        return high if cached else f"{base}/low.webp"
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.head(high, timeout=3)
+        ok = resp.status_code == 200
+    except Exception as exc:
+        logger.error("HEAD request failed for %s: %s", high, exc)
+        ok = False
+    _image_cache[high] = ok
+    return high if ok else f"{base}/low.webp"
 
 
 @app.get("/cards")
-def get_cards(
+async def get_cards(
     lang: str = "de",
     set_id: Optional[str] = None,
     type_: Optional[str] = Query(None, alias="type"),
@@ -215,7 +223,7 @@ def get_cards(
 
         c = card.copy()
         c["set"] = _sets.get(c["set_id"])
-        c["image"] = _image_url(lang, c["set_id"], c["_local_id"])
+        c["image"] = await _image_url(lang, c["set_id"], c["_local_id"])
         del c["_local_id"]
         result.append(_filter_language(c, lang))
 
@@ -227,7 +235,7 @@ def get_cards(
 
 
 @app.get("/cards/search")
-def search_cards(
+async def search_cards(
     q: str,
     lang: str = "de",
     fields: Optional[str] = Query(
@@ -255,21 +263,21 @@ def search_cards(
         if q_lower in text:
             c = card.copy()
             c["set"] = _sets.get(c["set_id"])
-            c["image"] = _image_url(lang, c["set_id"], c["_local_id"])
+            c["image"] = await _image_url(lang, c["set_id"], c["_local_id"])
             del c["_local_id"]
             results.append(_filter_language(c, lang))
     return results
 
 
 @app.get("/cards/{card_id}")
-def get_card(card_id: str, lang: str = "de"):
+async def get_card(card_id: str, lang: str = "de"):
     """Eine einzelne Karte per ID abrufen."""
     card = _cards_by_id.get(card_id)
     if card is None:
         raise HTTPException(status_code=404, detail="Card not found")
     c = card.copy()
     c["set"] = _sets.get(c["set_id"])
-    c["image"] = _image_url(lang, c["set_id"], c["_local_id"])
+    c["image"] = await _image_url(lang, c["set_id"], c["_local_id"])
     del c["_local_id"]
     return _filter_language(c, lang)
 
