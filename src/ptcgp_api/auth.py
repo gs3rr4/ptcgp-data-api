@@ -3,13 +3,14 @@
 import os
 from fastapi import Header, HTTPException, status
 
-API_KEY = os.getenv("API_KEY")
 
-
-def verify_api_key(api_key: str | None = Header(None, alias="X-API-Key")) -> None:
+def verify_api_key(
+    api_key: str | None = Header(None, alias="X-API-Key"),
+) -> None:
     """Validate the API key header for write operations."""
-    if API_KEY and api_key != API_KEY:
+    expected = os.getenv("API_KEY")
+    if expected and api_key != expected:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing API key",
+            detail="Ungültiger oder fehlender API-Schlüssel",
         )

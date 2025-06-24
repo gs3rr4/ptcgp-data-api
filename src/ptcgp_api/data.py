@@ -3,11 +3,11 @@
 import json
 import os
 from typing import Dict, List, Any
-from models import Language
+from .models import Language
 
 
 # Directory of this file -> repository root
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DATA_DIR = os.getenv("DATA_DIR", os.path.join(BASE_DIR, "data"))
 
 CARDS_PATH = os.path.join(DATA_DIR, "cards.json")
@@ -73,8 +73,15 @@ def filter_language(data: Any, lang: str, default_lang: str = "de") -> Any:
                 return filter_language(data[lang], lang, default_lang)
             if default_lang in data:
                 return filter_language(data[default_lang], lang, default_lang)
-            return filter_language(data[next(iter(lang_keys))], lang, default_lang)
-        return {k: filter_language(v, lang, default_lang) for k, v in data.items()}
+            return filter_language(
+                data[next(iter(lang_keys))],
+                lang,
+                default_lang,
+            )
+        filtered = {
+            k: filter_language(v, lang, default_lang) for k, v in data.items()
+        }  # noqa: E501
+        return filtered
     return data
 
 
@@ -98,7 +105,8 @@ def build_search_index(
             abil_txt = " ".join(abil_parts)
             atk_parts: List[str] = []
             for at in card.get("attacks", []):
-                atk_parts.append(str(filter_language(at.get("name", ""), lang)).lower())
+                name_val = filter_language(at.get("name", ""), lang)
+                atk_parts.append(str(name_val).lower())
                 atk_parts.append(
                     str(filter_language(at.get("effect", ""), lang)).lower()
                 )

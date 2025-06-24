@@ -1,12 +1,12 @@
 """Routes for card data and search operations."""
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from typing import Optional
 import os
-import logging
+import structlog
 import time
-import httpx
 from cachetools import TTLCache
+import httpx
 
 from ..data import (
     _cards,
@@ -19,17 +19,18 @@ from ..data import (
     _index_by_trainer_type,
     filter_language,
 )
-from models import Language
+from ..models import Language
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 IMAGE_TIMEOUT = float(os.getenv("IMAGE_TIMEOUT", "3"))
-_client = httpx.AsyncClient()
 _image_cache: TTLCache[str, bool] = TTLCache(maxsize=256, ttl=60 * 60 * 24)
 
 
-async def _image_url(lang: Language | str, set_id: str, local_id: str) -> str:
+async def _image_url(
+    client: httpx.AsyncClient, lang: Language | str, set_id: str, local_id: str
+) -> str:
     """Return the best available image URL for a card."""
     lang_val = lang.value if isinstance(lang, Language) else lang
     base = f"https://assets.tcgdex.net/{lang_val}/tcgp/{set_id}/{local_id}"
@@ -40,7 +41,7 @@ async def _image_url(lang: Language | str, set_id: str, local_id: str) -> str:
     if cached is not None:
         return high if cached else f"{base}/low.webp"
     try:
-        resp = await _client.head(high, timeout=IMAGE_TIMEOUT)
+        resp = await client.head(high, timeout=IMAGE_TIMEOUT)
         ok = resp.status_code == 200
     except Exception as exc:
         logger.error("HEAD request failed for %s: %s", high, exc)
@@ -51,6 +52,7 @@ async def _image_url(lang: Language | str, set_id: str, local_id: str) -> str:
 
 @router.get("/cards")
 async def get_cards(
+    request: Request,
     lang: Language = Language.de,
     set_id: Optional[str] = None,
     type_: Optional[str] = Query(None, alias="type"),
@@ -109,7 +111,9 @@ async def get_cards(
             if not evo:
                 continue
             names = evo.values() if isinstance(evo, dict) else [evo]
-            if not any(str(evolve_from).lower() == str(n).lower() for n in names):
+            if not any(
+                str(evolve_from).lower() == str(n).lower() for n in names
+            ):  # noqa: E501
                 continue
         if booster and booster not in card.get("boosters", []):
             continue
@@ -125,14 +129,22 @@ async def get_cards(
             weak_types = [w.get("type") for w in card.get("weaknesses", [])]
             if weakness not in weak_types:
                 continue
-        if retreat_min is not None and int(card.get("retreat", 0)) < retreat_min:
+        if (
+            retreat_min is not None
+            and int(card.get("retreat", 0)) < retreat_min  # noqa: E501
+        ):
             continue
-        if retreat_max is not None and int(card.get("retreat", 0)) > retreat_max:
+        if (
+            retreat_max is not None
+            and int(card.get("retreat", 0)) > retreat_max  # noqa: E501
+        ):
             continue
 
         c = card.copy()
         c["set"] = _sets.get(c["set_id"])
-        c["image"] = await _image_url(lang, c["set_id"], c["_local_id"])
+        c["image"] = await _image_url(
+            request.app.state.http_client, lang, c["set_id"], c["_local_id"]
+        )
         del c["_local_id"]
         result.append(filter_language(c, lang))
 
@@ -151,11 +163,14 @@ async def get_cards(
 
 @router.get("/cards/search")
 async def search_cards(
+    request: Request,
     q: str,
     lang: Language = Language.de,
     fields: Optional[str] = Query(
         None,
-        description="Komma-getrennte Liste der Felder: name, abilities, attacks",
+        description=(
+            "Komma-getrennte Liste der Felder: name, abilities, attacks"
+        ),  # noqa: E501
     ),
 ):
     """Search cards by query string and optional fields."""
@@ -182,19 +197,30 @@ async def search_cards(
         if q_lower in text:
             c = card.copy()
             c["set"] = _sets.get(c["set_id"])
-            c["image"] = await _image_url(lang, c["set_id"], c["_local_id"])
+            c["image"] = await _image_url(
+                request.app.state.http_client,
+                lang,
+                c["set_id"],
+                c["_local_id"],
+            )
             del c["_local_id"]
             results.append(filter_language(c, lang))
     return results
 
 
 @router.get("/cards/{card_id}")
-async def get_card(card_id: str, lang: Language = Language.de):
+async def get_card(
+    request: Request,
+    card_id: str,
+    lang: Language = Language.de,
+):
     card = _cards_by_id.get(card_id)
     if card is None:
-        raise HTTPException(status_code=404, detail="Card not found")
+        raise HTTPException(status_code=404, detail="Karte nicht gefunden")
     c = card.copy()
     c["set"] = _sets.get(c["set_id"])
-    c["image"] = await _image_url(lang, c["set_id"], c["_local_id"])
+    c["image"] = await _image_url(
+        request.app.state.http_client, lang, c["set_id"], c["_local_id"]
+    )
     del c["_local_id"]
     return filter_language(c, lang)

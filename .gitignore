@@ -9,6 +9,7 @@ __pycache__/
 # Environment files
 .env
 .env.*
+!.env.example
 
 # Virtual environment directories
 venv/
@@ -32,3 +33,5 @@ htmlcov/
 # Others
 *.log
 .DS_Store
+logs/
+!logs/.gitkeep

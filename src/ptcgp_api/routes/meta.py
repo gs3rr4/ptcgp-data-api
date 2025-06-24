@@ -18,7 +18,7 @@ def get_set(set_id: str, lang: str = "de"):
     """Return a single set by ID."""
     s = _sets.get(set_id)
     if s is None:
-        raise HTTPException(status_code=404, detail="Set not found")
+        raise HTTPException(status_code=404, detail="Set nicht gefunden")
     return filter_language(s, lang)
 
 
