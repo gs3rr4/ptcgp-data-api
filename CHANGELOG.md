@@ -20,6 +20,7 @@
 - `IMAGE_TIMEOUT` environment variable for configurable image request timeout.
 - Packaging metadata in `pyproject.toml` allowing `pip install -e .`.
 - Dependency caching and Snyk scanning in CI workflow.
+- Snyk scan skipped on forked PRs when token is unavailable.
 - `pytest.ini` enabling `pytest-timeout`.
 - Package versions pinned in `requirements*.txt` for reproducible installs.
 - Coverage reporting via `pytest-cov` in CI.
