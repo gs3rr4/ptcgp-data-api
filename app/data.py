@@ -1,11 +1,14 @@
+"""Load card data and build search indexes at import time."""
+
 import json
 import os
 from typing import Dict, List, Any
+from models import Language
 
 
 # Directory of this file -> repository root
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
+DATA_DIR = os.getenv("DATA_DIR", os.path.join(BASE_DIR, "data"))
 
 CARDS_PATH = os.path.join(DATA_DIR, "cards.json")
 SETS_PATH = os.path.join(DATA_DIR, "sets.json")
@@ -56,7 +59,7 @@ for idx, card in enumerate(_raw_cards, start=1):
         _index_by_rarity.setdefault(rarity, set()).add(obj["id"])
 
 
-LANGUAGES = {"de", "en", "fr", "es", "it", "pt-br", "ko"}
+LANGUAGES = {lang.value for lang in Language}
 
 
 def filter_language(data: Any, lang: str, default_lang: str = "de") -> Any:

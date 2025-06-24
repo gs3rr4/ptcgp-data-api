@@ -1,3 +1,5 @@
+"""Routes for card data and search operations."""
+
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 import os
@@ -17,6 +19,7 @@ from ..data import (
     _index_by_trainer_type,
     filter_language,
 )
+from models import Language
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -24,9 +27,10 @@ router = APIRouter()
 _image_cache: TTLCache[str, bool] = TTLCache(maxsize=256, ttl=60 * 60 * 24)
 
 
-async def _image_url(lang: str, set_id: str, local_id: str) -> str:
+async def _image_url(lang: Language | str, set_id: str, local_id: str) -> str:
     """Return the best available image URL for a card."""
-    base = f"https://assets.tcgdex.net/{lang}/tcgp/{set_id}/{local_id}"
+    lang_val = lang.value if isinstance(lang, Language) else lang
+    base = f"https://assets.tcgdex.net/{lang_val}/tcgp/{set_id}/{local_id}"
     high = f"{base}/high.webp"
     if os.getenv("SKIP_IMAGE_CHECKS"):
         return high
@@ -46,7 +50,7 @@ async def _image_url(lang: str, set_id: str, local_id: str) -> str:
 
 @router.get("/cards")
 async def get_cards(
-    lang: str = "de",
+    lang: Language = Language.de,
     set_id: Optional[str] = None,
     type_: Optional[str] = Query(None, alias="type"),
     trainer_type: Optional[str] = Query(None, alias="trainerType"),
@@ -72,6 +76,7 @@ async def get_cards(
     with an ``O(n)`` scan over the candidate set.
     """
     start_ts = time.perf_counter() if os.getenv("PROFILE_FILTERS") else None
+    logger.info("get_cards request lang=%s set_id=%s", lang, set_id)
 
     candidate_ids: Optional[set] = None
     if set_id:
@@ -146,12 +151,14 @@ async def get_cards(
 @router.get("/cards/search")
 async def search_cards(
     q: str,
-    lang: str = "de",
+    lang: Language = Language.de,
     fields: Optional[str] = Query(
         None,
         description="Komma-getrennte Liste der Felder: name, abilities, attacks",
     ),
 ):
+    """Search cards by query string and optional fields."""
+    logger.info("search_cards q=%s lang=%s", q, lang)
     results = []
     q_lower = q.lower()
     requested = None
@@ -162,7 +169,10 @@ async def search_cards(
             if f.strip() in {"name", "abilities", "attacks"}
         ]
     for card in _cards:
-        search_data = _search_index.get(card["id"], {}).get(lang, {})
+        search_data = _search_index.get(card["id"], {}).get(
+            lang.value if isinstance(lang, Language) else lang,
+            {},
+        )
         text = (
             search_data.get("full", "")
             if not requested
@@ -178,7 +188,7 @@ async def search_cards(
 
 
 @router.get("/cards/{card_id}")
-async def get_card(card_id: str, lang: str = "de"):
+async def get_card(card_id: str, lang: Language = Language.de):
     card = _cards_by_id.get(card_id)
     if card is None:
         raise HTTPException(status_code=404, detail="Card not found")
