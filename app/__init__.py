@@ -3,6 +3,8 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .auth import API_KEY
+
 from .routes import cards, users, meta
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -14,9 +16,16 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="PTCGP Data API", version="1.0")
 
+allow_origins_env = os.getenv("ALLOW_ORIGINS", "*")
+ALLOW_ORIGINS = (
+    [o.strip() for o in allow_origins_env.split(",")]
+    if allow_origins_env != "*"
+    else ["*"]
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOW_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -29,4 +38,6 @@ app.include_router(meta.router)
 @app.on_event("startup")
 async def log_startup() -> None:
     """Log that the application has started."""
+    if API_KEY:
+        logger.info("API authentication enabled")
     logger.info("Application startup complete")

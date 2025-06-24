@@ -6,6 +6,8 @@ import logging
 
 # Skip external image checks during tests
 os.environ["SKIP_IMAGE_CHECKS"] = "1"
+# Enable API key authentication for tests
+os.environ["API_KEY"] = "testkey"
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -15,6 +17,8 @@ import app.routes.cards as cards_routes
 import app.routes.users as users_routes
 
 client = TestClient(app)
+
+HEADERS = {"X-API-Key": "testkey"}
 
 
 @pytest.fixture(autouse=True)
@@ -73,15 +77,33 @@ def test_search_cards():
     assert any(card["id"] == "001" for card in data)
 
 
+def test_missing_api_key_rejected():
+    resp = client.post("/decks", json={"name": "Fail", "cards": ["001"]})
+    assert resp.status_code == 401
+
+
+def test_invalid_api_key_rejected():
+    resp = client.post(
+        "/decks",
+        json={"name": "Fail", "cards": ["001"]},
+        headers={"X-API-Key": "wrong"},
+    )
+    assert resp.status_code == 401
+
+
 def test_user_endpoints():
     user = "alice"
     have_cards = ["001"]
     want_cards = ["002"]
 
-    resp = client.post(f"/users/{user}/have", json={"cards": have_cards})
+    resp = client.post(
+        f"/users/{user}/have", json={"cards": have_cards}, headers=HEADERS
+    )
     assert resp.status_code == 200
 
-    resp = client.post(f"/users/{user}/want", json={"cards": want_cards})
+    resp = client.post(
+        f"/users/{user}/want", json={"cards": want_cards}, headers=HEADERS
+    )
     assert resp.status_code == 200
 
     resp = client.get(f"/users/{user}")
@@ -94,7 +116,9 @@ def test_user_endpoints():
 def test_deck_and_group_flow(caplog):
     caplog.set_level(logging.INFO)
     # create deck
-    resp = client.post("/decks", json={"name": "Test Deck", "cards": ["001"]})
+    resp = client.post(
+        "/decks", json={"name": "Test Deck", "cards": ["001"]}, headers=HEADERS
+    )
     assert resp.status_code == 200
     deck = resp.json()
     deck_id = deck["id"]
@@ -109,19 +133,21 @@ def test_deck_and_group_flow(caplog):
     assert resp.status_code == 200
 
     # vote deck
-    resp = client.post(f"/decks/{deck_id}/vote", params={"vote": "up"})
+    resp = client.post(f"/decks/{deck_id}/vote", params={"vote": "up"}, headers=HEADERS)
     assert resp.status_code == 200
     assert resp.json()["votes"] == 1
     assert any("Created deck" in r.message for r in caplog.records)
 
     # create group
-    resp = client.post("/groups", json={"name": "Test Group"})
+    resp = client.post("/groups", json={"name": "Test Group"}, headers=HEADERS)
     assert resp.status_code == 200
     group = resp.json()
     group_id = group["id"]
 
     user = "bob"
-    resp = client.post(f"/groups/{group_id}/join", json={"user_id": user})
+    resp = client.post(
+        f"/groups/{group_id}/join", json={"user_id": user}, headers=HEADERS
+    )
     assert resp.status_code == 200
     assert user in resp.json()["members"]
 
@@ -148,11 +174,11 @@ def test_trade_matches_empty(monkeypatch):
 
 
 def test_validation_errors():
-    resp = client.post("/decks", json={"cards": "foo"})
+    resp = client.post("/decks", json={"cards": "foo"}, headers=HEADERS)
     assert resp.status_code == 422
 
-    resp = client.post("/groups", json={})
+    resp = client.post("/groups", json={}, headers=HEADERS)
     assert resp.status_code == 422
 
-    resp = client.post("/users/alice/have", json={"cards": "foo"})
+    resp = client.post("/users/alice/have", json={"cards": "foo"}, headers=HEADERS)
     assert resp.status_code == 422
