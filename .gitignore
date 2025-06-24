@@ -9,11 +9,14 @@ __pycache__/
 # Environment files
 .env
 .env.*
+!.env.example
 
 # Virtual environment directories
 venv/
 ENV/
 env/
+
+logs/
 
 # Distribution / packaging
 build/

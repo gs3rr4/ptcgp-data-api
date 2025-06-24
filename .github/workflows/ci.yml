@@ -9,7 +9,12 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements.txt -r requirements-dev.txt
-      - run: ruff check .
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+      - run: pre-commit run --all-files --show-diff-on-failure --color=always
+      - run: pip-audit -r requirements.txt -r requirements-dev.txt
       - run: pytest --cov=app --cov-report=xml
       - uses: actions/upload-artifact@v4
         with:

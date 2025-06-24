@@ -1,12 +1,14 @@
 """Routes for card data and search operations."""
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import Optional
 import os
 import logging
 import time
 import httpx
 from cachetools import TTLCache
+
+from .. import get_client
 
 from ..data import (
     _cards,
@@ -25,11 +27,12 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 IMAGE_TIMEOUT = float(os.getenv("IMAGE_TIMEOUT", "3"))
-_client = httpx.AsyncClient()
 _image_cache: TTLCache[str, bool] = TTLCache(maxsize=256, ttl=60 * 60 * 24)
 
 
-async def _image_url(lang: Language | str, set_id: str, local_id: str) -> str:
+async def _image_url(
+    client: httpx.AsyncClient, lang: Language | str, set_id: str, local_id: str
+) -> str:
     """Return the best available image URL for a card."""
     lang_val = lang.value if isinstance(lang, Language) else lang
     base = f"https://assets.tcgdex.net/{lang_val}/tcgp/{set_id}/{local_id}"
@@ -40,7 +43,7 @@ async def _image_url(lang: Language | str, set_id: str, local_id: str) -> str:
     if cached is not None:
         return high if cached else f"{base}/low.webp"
     try:
-        resp = await _client.head(high, timeout=IMAGE_TIMEOUT)
+        resp = await client.head(high, timeout=IMAGE_TIMEOUT)
         ok = resp.status_code == 200
     except Exception as exc:
         logger.error("HEAD request failed for %s: %s", high, exc)
@@ -69,6 +72,7 @@ async def get_cards(
     retreat_max: Optional[int] = None,
     limit: Optional[int] = None,
     offset: int = 0,
+    client: httpx.AsyncClient = Depends(get_client),
 ):
     """Return cards filtered by query parameters.
 
@@ -132,7 +136,7 @@ async def get_cards(
 
         c = card.copy()
         c["set"] = _sets.get(c["set_id"])
-        c["image"] = await _image_url(lang, c["set_id"], c["_local_id"])
+        c["image"] = await _image_url(client, lang, c["set_id"], c["_local_id"])
         del c["_local_id"]
         result.append(filter_language(c, lang))
 
@@ -157,6 +161,7 @@ async def search_cards(
         None,
         description="Komma-getrennte Liste der Felder: name, abilities, attacks",
     ),
+    client: httpx.AsyncClient = Depends(get_client),
 ):
     """Search cards by query string and optional fields."""
     logger.info("search_cards q=%s lang=%s", q, lang)
@@ -182,19 +187,23 @@ async def search_cards(
         if q_lower in text:
             c = card.copy()
             c["set"] = _sets.get(c["set_id"])
-            c["image"] = await _image_url(lang, c["set_id"], c["_local_id"])
+            c["image"] = await _image_url(client, lang, c["set_id"], c["_local_id"])
             del c["_local_id"]
             results.append(filter_language(c, lang))
     return results
 
 
 @router.get("/cards/{card_id}")
-async def get_card(card_id: str, lang: Language = Language.de):
+async def get_card(
+    card_id: str,
+    lang: Language = Language.de,
+    client: httpx.AsyncClient = Depends(get_client),
+):
     card = _cards_by_id.get(card_id)
     if card is None:
-        raise HTTPException(status_code=404, detail="Card not found")
+        raise HTTPException(status_code=404, detail="Karte nicht gefunden")
     c = card.copy()
     c["set"] = _sets.get(c["set_id"])
-    c["image"] = await _image_url(lang, c["set_id"], c["_local_id"])
+    c["image"] = await _image_url(client, lang, c["set_id"], c["_local_id"])
     del c["_local_id"]
     return filter_language(c, lang)

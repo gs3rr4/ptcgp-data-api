@@ -27,3 +27,21 @@
 - CI workflow uses `ruff check` for compatibility.
 - Async tests share a session-scoped event loop.
 
+
+## [1.1.0] - 2025-06-26
+### Added
+- Structured JSON logging via structlog with rotating file handler.
+- Lifespan management closing the HTTP client on shutdown.
+- Pre-commit configuration with Black, Ruff and Flake8.
+- Security scanning with pip-audit in CI.
+- Example environment file `.env.example`.
+- MIT license file.
+
+### Changed
+- Error messages für Nutzer sind nun auf Deutsch.
+- CI nutzt pre-commit und cached die Umgebung.
+- README neu generiert und aktualisiert.
+
+### Fixed
+- HTTP client no longer remains open between tests.
+

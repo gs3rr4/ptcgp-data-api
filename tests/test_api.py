@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from fastapi.testclient import TestClient
 from main import app
+import app as app_module
 import app.routes.cards as cards_routes
 import app.routes.users as users_routes
 
@@ -24,7 +25,7 @@ HEADERS = {"X-API-Key": "testkey"}
 def disable_network(monkeypatch):
     """Avoid real network calls during tests."""
 
-    async def fake_image_url(lang: str, set_id: str, local_id: str) -> str:
+    async def fake_image_url(client, lang: str, set_id: str, local_id: str) -> str:
         return f"/mock/{lang}/{set_id}/{local_id}.webp"
 
     class DummyResp:
@@ -32,10 +33,15 @@ def disable_network(monkeypatch):
 
     monkeypatch.setattr(cards_routes, "_image_url", fake_image_url)
 
-    async def dummy_head(url, *_, **__):
-        return DummyResp()
+    class DummyClient:
+        async def head(self, *_, **__):
+            return DummyResp()
 
-    monkeypatch.setattr(cards_routes._client, "head", dummy_head)
+    app.dependency_overrides[app_module.get_client] = lambda: DummyClient()
+
+    yield
+
+    app.dependency_overrides.clear()
 
 
 def test_cards_returns_list():
@@ -195,3 +201,23 @@ def test_invalid_vote_value():
 def test_invalid_lang_rejected():
     resp = client.get("/cards", params={"lang": "xx"})
     assert resp.status_code == 422
+
+
+def test_client_closed_on_shutdown():
+    with TestClient(app) as local:
+        local.get("/cards")
+    from app import get_client
+
+    assert get_client().is_closed
+
+
+def test_card_not_found_message():
+    resp = client.get("/cards/does-not-exist")
+    assert resp.status_code == 404
+    assert resp.json()["detail"] == "Karte nicht gefunden"
+
+
+def test_api_key_message(monkeypatch):
+    resp = client.post("/decks", json={"name": "Fail", "cards": ["001"]})
+    assert resp.status_code == 401
+    assert resp.json()["detail"] == "Ungültiger oder fehlender API-Schlüssel"

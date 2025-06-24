@@ -11,5 +11,5 @@ def verify_api_key(api_key: str | None = Header(None, alias="X-API-Key")) -> Non
     if API_KEY and api_key != API_KEY:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing API key",
+            detail="Ungültiger oder fehlender API-Schlüssel",
         )

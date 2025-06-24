@@ -24,10 +24,15 @@ async def test_image_url_cache(monkeypatch):
         return R()
 
     monkeypatch.setattr(cards_routes, "_image_cache", TTLCache(maxsize=10, ttl=10))
-    monkeypatch.setattr(cards_routes._client, "head", dummy_head)
 
-    url1 = await cards_routes._image_url("de", "A2a", "001")
-    url2 = await cards_routes._image_url("de", "A2a", "001")
+    class DummyClient:
+        async def head(self, url, timeout=3):
+            return await dummy_head(url, timeout=timeout)
+
+    monkeypatch.setattr(cards_routes, "get_client", lambda: DummyClient())
+
+    url1 = await cards_routes._image_url(DummyClient(), "de", "A2a", "001")
+    url2 = await cards_routes._image_url(DummyClient(), "de", "A2a", "001")
     assert url1 == url2
     assert len(calls) == 1
 
@@ -40,10 +45,15 @@ async def test_image_url_timeout(monkeypatch, caplog):
 
     cache = TTLCache(maxsize=10, ttl=10)
     monkeypatch.setattr(cards_routes, "_image_cache", cache)
-    monkeypatch.setattr(cards_routes._client, "head", timeout_head)
+
+    class DummyClient:
+        async def head(self, url, timeout=3):
+            return await timeout_head(url, timeout=timeout)
+
+    monkeypatch.setattr(cards_routes, "get_client", lambda: DummyClient())
 
     caplog.set_level(logging.ERROR)
-    url = await cards_routes._image_url("de", "A2a", "001")
+    url = await cards_routes._image_url(DummyClient(), "de", "A2a", "001")
     assert url.endswith("low.webp")
     high = "https://assets.tcgdex.net/de/tcgp/A2a/001/high.webp"
     assert cache[high] is False
