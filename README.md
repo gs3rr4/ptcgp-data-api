@@ -9,7 +9,7 @@ Eine offene FastAPI-Anwendung zum Bereitstellen von Pokémon TCG Pocket Daten.
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -e . -r requirements-dev.txt
 ```
 
 ## Starten
@@ -28,7 +28,7 @@ uvicorn main:app --reload
 
 ## Tests
 ```bash
-pytest
+pytest --cov=ptcgp_api --cov-report=term-missing
 ```
 Optionale Benchmarks:
 ```bash
@@ -50,4 +50,7 @@ pytest --benchmark-only
 Weitere Details siehe `CHANGELOG.md`.
 
 ## Entwicklung
-Führe `pre-commit install` aus, um automatische Formatierung und Linting sicherzustellen. Logs werden strukturiert in `logs/app.log` mit Rotationsdateien geschrieben.
+Führe `pre-commit install` aus, um automatische Formatierung und Linting sicherzustellen.
+Logs werden strukturiert in `logs/app.log` mit Rotationsdateien geschrieben.
+Siehe `.env.example` für alle verfügbaren Umgebungsvariablen.
+Der CI-Workflow führt einen Snyk-Scan nur aus, wenn ein `SNYK_TOKEN` bereitsteht.

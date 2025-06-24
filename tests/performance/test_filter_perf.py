@@ -1,10 +1,6 @@
 # ruff: noqa: E402
 # flake8: noqa
 import os
-import sys
-
-base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
-sys.path.insert(0, base)
 
 import pytest
 from fastapi.testclient import TestClient

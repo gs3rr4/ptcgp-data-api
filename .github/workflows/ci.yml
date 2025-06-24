@@ -8,12 +8,39 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - run: pip install -r requirements.txt -r requirements-dev.txt
       - run: pre-commit run --all-files --show-diff-on-failure
       - run: ruff check .
       - run: pip-audit
+      - name: Snyk scan
+        if: ${{ secrets.SNYK_TOKEN != '' }}
+        uses: snyk/actions/python@0.4.0
+        with:
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - run: pytest --cov=ptcgp_api --cov-report=xml
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: coverage.xml
+      - name: Upload Railway logs
+        run: |
+          if command -v railway >/dev/null; then
+            railway logs --follow --detach > latest_railway.log &
+            sleep 5
+            pkill -f "railway logs" || true
+            cat latest_railway.log
+          fi
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: railway-logs
+          path: latest_railway.log
