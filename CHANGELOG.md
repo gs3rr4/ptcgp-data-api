@@ -10,6 +10,9 @@
 - CORS origins configurable via `ALLOW_ORIGINS` environment variable.
 - Optional API key authentication for write operations using the `API_KEY`
   environment variable and `X-API-Key` header.
+- Filter indexes for sets, types and rarity for faster `/cards` queries.
+- Optional profiling via `PROFILE_FILTERS` environment variable.
+- Benchmark test suite in `tests/performance` (requires `pytest-benchmark`).
 
 ### Changed
 - Endpoints now await image URL resolution.

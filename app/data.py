@@ -32,6 +32,10 @@ with open(TOURNAMENTS_PATH, encoding="utf-8") as f:
 _cards: List[Dict[str, Any]] = []
 _cards_by_id: Dict[str, Dict[str, Any]] = {}
 _set_counter: Dict[str, int] = {}
+_index_by_set: Dict[str, set] = {}
+_index_by_type: Dict[str, set] = {}
+_index_by_rarity: Dict[str, set] = {}
+_index_by_trainer_type: Dict[str, set] = {}
 
 for idx, card in enumerate(_raw_cards, start=1):
     set_id = card.get("set_id")
@@ -41,6 +45,15 @@ for idx, card in enumerate(_raw_cards, start=1):
     obj["_local_id"] = f"{_set_counter[set_id]:03d}"
     _cards.append(obj)
     _cards_by_id[obj["id"]] = obj
+
+    # Build filter indexes for faster lookups
+    _index_by_set.setdefault(set_id, set()).add(obj["id"])
+    for t in obj.get("types", []):
+        _index_by_type.setdefault(t, set()).add(obj["id"])
+    if trainer_type := obj.get("trainerType"):
+        _index_by_trainer_type.setdefault(trainer_type, set()).add(obj["id"])
+    if rarity := obj.get("rarity"):
+        _index_by_rarity.setdefault(rarity, set()).add(obj["id"])
 
 
 LANGUAGES = {"de", "en", "fr", "es", "it", "pt-br", "ko"}
@@ -62,7 +75,9 @@ def filter_language(data: Any, lang: str, default_lang: str = "de") -> Any:
     return data
 
 
-def build_search_index(cards: List[Dict[str, Any]]) -> Dict[str, Dict[str, Dict[str, str]]]:
+def build_search_index(
+    cards: List[Dict[str, Any]],
+) -> Dict[str, Dict[str, Dict[str, str]]]:
     """Create a full text search index for the given cards."""
     index: Dict[str, Dict[str, Dict[str, str]]] = {}
     for card in cards:
@@ -71,13 +86,19 @@ def build_search_index(cards: List[Dict[str, Any]]) -> Dict[str, Dict[str, Dict[
             name_txt = str(filter_language(card.get("name", ""), lang)).lower()
             abil_parts: List[str] = []
             for ab in card.get("abilities", []):
-                abil_parts.append(str(filter_language(ab.get("name", ""), lang)).lower())
-                abil_parts.append(str(filter_language(ab.get("effect", ""), lang)).lower())
+                abil_parts.append(
+                    str(filter_language(ab.get("name", ""), lang)).lower()
+                )
+                abil_parts.append(
+                    str(filter_language(ab.get("effect", ""), lang)).lower()
+                )
             abil_txt = " ".join(abil_parts)
             atk_parts: List[str] = []
             for at in card.get("attacks", []):
                 atk_parts.append(str(filter_language(at.get("name", ""), lang)).lower())
-                atk_parts.append(str(filter_language(at.get("effect", ""), lang)).lower())
+                atk_parts.append(
+                    str(filter_language(at.get("effect", ""), lang)).lower()
+                )
             atk_txt = " ".join(atk_parts)
             per_lang[lang] = {
                 "name": name_txt,
@@ -98,6 +119,10 @@ __all__ = [
     "_events",
     "_tournaments",
     "_search_index",
+    "_index_by_set",
+    "_index_by_type",
+    "_index_by_rarity",
+    "_index_by_trainer_type",
     "filter_language",
     "build_search_index",
 ]
