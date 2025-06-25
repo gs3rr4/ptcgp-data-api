@@ -24,6 +24,8 @@
 - `pytest.ini` enabling `pytest-timeout`.
 - Package versions pinned in `requirements*.txt` for reproducible installs.
 - Coverage reporting via `pytest-cov` in CI.
+- Dependabot konfiguriert automatische Updates für Python-Pakete und
+  GitHub Actions.
 
 ### Changed
 - Endpoints now await image URL resolution.

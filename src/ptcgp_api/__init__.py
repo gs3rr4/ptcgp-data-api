@@ -1,3 +1,8 @@
+"""PTCGP Data API main application.
+
+CI checks run for every commit, including automatic Dependabot updates.
+"""
+
 import logging
 import logging.handlers
 import os
