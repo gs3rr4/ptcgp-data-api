@@ -4,7 +4,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -16,9 +16,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - run: pip install -e . -r requirements-dev.txt
+      - name: Cache pre-commit
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: ${{ runner.os }}-precommit-
       - run: pre-commit run --all-files --show-diff-on-failure
       - run: ruff check .
-      - run: pip-audit
+      - run: pip-audit -r requirements.txt --format columns
       - name: Snyk scan
         if: ${{ secrets.SNYK_TOKEN != '' }}
         uses: snyk/actions/python@0.4.0
