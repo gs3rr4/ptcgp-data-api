@@ -40,13 +40,13 @@ jobs:
       - name: Upload Railway logs
         run: |
           if command -v railway >/dev/null; then
-            railway logs --follow --detach > latest_railway.log &
+            railway logs --follow --detach > logs/latest_railway.log &
             sleep 5
             pkill -f "railway logs" || true
-            cat latest_railway.log
+            cat logs/latest_railway.log
           fi
         continue-on-error: true
       - uses: actions/upload-artifact@v4
         with:
           name: railway-logs
-          path: latest_railway.log
+          path: logs/latest_railway.log
