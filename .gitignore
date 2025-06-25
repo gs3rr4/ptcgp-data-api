@@ -35,3 +35,4 @@ htmlcov/
 .DS_Store
 logs/
 !logs/.gitkeep
+coverage.xml
