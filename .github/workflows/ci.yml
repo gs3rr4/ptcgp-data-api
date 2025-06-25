@@ -32,7 +32,7 @@ jobs:
           command: test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      - run: pytest --cov=ptcgp_api --cov-report=xml
+      - run: pytest --cov=ptcgp_api --cov-report=xml --cov-fail-under=80
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
