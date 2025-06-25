@@ -23,7 +23,6 @@ jobs:
           key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
           restore-keys: ${{ runner.os }}-precommit-
       - run: pre-commit run --all-files --show-diff-on-failure
-      - run: ruff check .
       - run: pip-audit -r requirements.txt --format columns
       - name: Snyk scan
         if: ${{ secrets.SNYK_TOKEN != '' }}
