@@ -32,6 +32,7 @@
 - Endpoints now await image URL resolution.
 - Image URL checks cached for 24 hours to improve performance.
 - CI workflow uses `ruff check` for compatibility.
+- Dependabot aktualisiert Abhängigkeiten nun täglich und jeder PR läuft durch die komplette CI-Pipeline.
 - Async tests share a session-scoped event loop.
 - Startup instructions now reference `ptcgp_api:app` and document Railway command.
 
