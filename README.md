@@ -62,5 +62,6 @@ Der CI-Workflow führt einen Snyk-Scan nur aus, wenn ein `SNYK_TOKEN` bereitsteh
 
 ## Dependabot
 Dieses Repository nutzt Dependabot, um Python-Abhängigkeiten und GitHub Actions
-wöchentlich automatisch zu aktualisieren. Aktiviere dazu Dependabot Alerts und
-Security Updates in den Repository-Einstellungen.
+täglich automatisch zu aktualisieren. Jeder Dependabot-PR durchläuft die
+komplette CI-Pipeline inklusive Linting, Tests und Security-Audit. Aktiviere
+dazu Dependabot Alerts und Security Updates in den Repository-Einstellungen.
