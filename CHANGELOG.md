@@ -24,6 +24,7 @@
 - `pytest.ini` enabling `pytest-timeout`.
 - Package versions pinned in `requirements*.txt` for reproducible installs.
 - Coverage reporting via `pytest-cov` in CI.
+- Pre-commit now runs Black, Flake8, Ruff and pip-audit with cached hooks.
 - Dependabot konfiguriert automatische Updates für Python-Pakete und
   GitHub Actions.
 
