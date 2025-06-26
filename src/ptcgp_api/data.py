@@ -34,18 +34,19 @@ with open(TOURNAMENTS_PATH, encoding="utf-8") as f:
 # Build cards with global and local ids
 _cards: List[Dict[str, Any]] = []
 _cards_by_id: Dict[str, Dict[str, Any]] = {}
-_set_counter: Dict[str, int] = {}
 _index_by_set: Dict[str, set] = {}
 _index_by_type: Dict[str, set] = {}
 _index_by_rarity: Dict[str, set] = {}
 _index_by_trainer_type: Dict[str, set] = {}
 
+set_counter: Dict[str, int] = {}
+
 for idx, card in enumerate(_raw_cards, start=1):
     set_id = card.get("set_id")
-    _set_counter[set_id] = _set_counter.get(set_id, 0) + 1
+    set_counter[set_id] = set_counter.get(set_id, 0) + 1
     obj = card.copy()
     obj["id"] = f"{idx:03d}"
-    obj["_local_id"] = f"{_set_counter[set_id]:03d}"
+    obj["_local_id"] = f"{set_counter[set_id]:03d}"
     _cards.append(obj)
     _cards_by_id[obj["id"]] = obj
 
