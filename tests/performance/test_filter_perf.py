@@ -1,3 +1,4 @@
+# pragma: no cover
 # ruff: noqa: E402
 # flake8: noqa
 import os
