@@ -24,11 +24,9 @@ jobs:
           restore-keys: ${{ runner.os }}-precommit-
       - run: pre-commit run --all-files --show-diff-on-failure
       - run: pip-audit -r requirements.txt --format columns
-      - name: Snyk scan
-        if: ${{ secrets.SNYK_TOKEN != '' }}
-        uses: snyk/actions/python@0.4.0
-        with:
-          command: test
+      - name: Snyk Test
+        if: ${{ secrets.SNYK_TOKEN != '' && github.event.pull_request.head.repo.full_name == github.repository }}
+        run: snyk test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - run: pytest --cov=. --cov-report=term-missing --cov-report=xml --cov-fail-under=80

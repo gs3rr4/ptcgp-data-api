@@ -21,6 +21,7 @@
 - Packaging metadata in `pyproject.toml` allowing `pip install -e .`.
 - Dependency caching and Snyk scanning in CI workflow.
 - Snyk scan skipped on forked PRs when token is unavailable.
+- CI: Skip Snyk test in forked PRs to prevent missing-secret auth errors.
 - `pytest.ini` enabling `pytest-timeout`.
 - Package versions pinned in `requirements*.txt` for reproducible installs.
 - Coverage reporting via `pytest-cov` in CI.
