@@ -1,0 +1,20 @@
+name: Security
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  snyk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e . -r requirements-dev.txt
+      - name: Snyk Test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        if: github.event.pull_request.head.repo.full_name == github.repository && env.SNYK_TOKEN != ''
+        run: snyk test

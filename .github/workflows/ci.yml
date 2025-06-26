@@ -25,10 +25,10 @@ jobs:
       - run: pre-commit run --all-files --show-diff-on-failure
       - run: pip-audit -r requirements.txt --format columns
       - name: Snyk Test
-        if: ${{ secrets.SNYK_TOKEN != '' && github.event.pull_request.head.repo.full_name == github.repository }}
-        run: snyk test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        if: github.event.pull_request.head.repo.full_name == github.repository && env.SNYK_TOKEN != ''
+        run: snyk test
       - run: pytest --cov=. --cov-report=term-missing --cov-report=xml --cov-fail-under=80
       - uses: actions/upload-artifact@v4
         with:
