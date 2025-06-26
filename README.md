@@ -33,7 +33,7 @@ uvicorn ptcgp_api:app --host 0.0.0.0 --port $PORT
 
 ## Tests
 ```bash
-pytest --cov=ptcgp_api --cov-report=term-missing
+pytest --cov=. --cov-report=term-missing
 ```
 Optionale Benchmarks:
 ```bash
