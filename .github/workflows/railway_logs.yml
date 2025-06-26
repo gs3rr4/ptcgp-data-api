@@ -20,12 +20,10 @@ jobs:
       - name: Fetch logs
         run: |
           mkdir -p logs
-          railway logs --environment production --service bot --detach > logs/latest_railway.log
+          railway logs --follow > logs/latest_railway.log
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      - name: Upload log artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: railway-latest-log
           path: logs/latest_railway.log
-          if-no-files-found: warn

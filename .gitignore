@@ -36,3 +36,4 @@ htmlcov/
 logs/
 !logs/.gitkeep
 coverage.xml
+.coverage

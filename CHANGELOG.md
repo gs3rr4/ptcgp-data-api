@@ -18,6 +18,8 @@
 - Global exception handler that logs unexpected errors.
 - GitHub Actions workflow with `ruff` linting and tests.
 - `IMAGE_TIMEOUT` environment variable for configurable image request timeout.
+- Coverage configuration and SBOM generation in CI.
+- `scripts/summary.py` CLI for Datenübersicht.
 - Packaging metadata in `pyproject.toml` allowing `pip install -e .`.
 - Dependency caching and Snyk scanning in CI workflow.
 - Snyk scan skipped on forked PRs when token is unavailable.

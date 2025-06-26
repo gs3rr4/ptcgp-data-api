@@ -40,6 +40,9 @@ Optionale Benchmarks:
 pytest --benchmark-only
 ```
 
+## Utility Scripts
+`python scripts/summary.py` gibt die Anzahl der Karten und Sets aus.
+
 ## Endpunkte (Auswahl)
 - `GET /cards` – Karten filtern
 - `GET /cards/{id}` – einzelne Karte
