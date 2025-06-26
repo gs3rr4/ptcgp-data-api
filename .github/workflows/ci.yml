@@ -24,11 +24,13 @@ jobs:
           restore-keys: ${{ runner.os }}-precommit-
       - run: pre-commit run --all-files --show-diff-on-failure
       - run: pip-audit -r requirements.txt --format columns
+      - name: Install Snyk CLI
+        run: npm install -g snyk
       - name: Snyk Test
-        if: ${{ secrets.SNYK_TOKEN != '' && github.event.pull_request.head.repo.full_name == github.repository }}
-        run: snyk test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        if: ${{ env.SNYK_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) }}
+        run: snyk test
       - run: pytest --cov=. --cov-report=term-missing --cov-report=xml --cov-fail-under=80
       - uses: actions/upload-artifact@v4
         with:
