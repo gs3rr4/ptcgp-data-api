@@ -16,7 +16,8 @@ import httpx
 from .routes import cards, users, meta
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
-LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+LOG_DIR = os.path.join(BASE_DIR, "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 file_handler = logging.handlers.RotatingFileHandler(
     os.path.join(LOG_DIR, "app.log"), maxBytes=5_000_000, backupCount=3
