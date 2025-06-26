@@ -3,6 +3,7 @@
 Usage:
     python scripts/summary.py --help
 """
+
 import argparse
 from ptcgp_api import data
 
