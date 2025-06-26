@@ -58,7 +58,8 @@ Weitere Details siehe `CHANGELOG.md`.
 Führe `pre-commit install` aus, um automatische Formatierung und Linting sicherzustellen.
 Logs werden strukturiert in `logs/app.log` mit Rotationsdateien geschrieben.
 Siehe `.env.example` für alle verfügbaren Umgebungsvariablen.
-Der CI-Workflow führt einen Snyk-Scan nur aus, wenn ein `SNYK_TOKEN` bereitsteht.
+Der CI-Workflow führt einen Snyk-Scan nur aus, wenn ein `SNYK_TOKEN` bereitsteht
+und der Pull Request aus demselben Repository stammt.
 
 ## Dependabot
 Dieses Repository nutzt Dependabot, um Python-Abhängigkeiten und GitHub Actions
