@@ -1,13 +1,15 @@
 import logging
 import os
+from pathlib import Path
+
+os.environ.setdefault("DATA_DIR", str(Path(__file__).parent / "data"))
+os.environ["SKIP_IMAGE_CHECKS"] = "1"
+os.environ["API_KEY"] = "testkey"
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from ptcgp_api import app  # noqa: E402
 import ptcgp_api.routes.users as users_routes  # noqa: E402
-
-os.environ["SKIP_IMAGE_CHECKS"] = "1"
-os.environ["API_KEY"] = "testkey"
 
 HEADERS = {"X-API-Key": "testkey"}
 
