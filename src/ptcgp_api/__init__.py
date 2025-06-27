@@ -19,9 +19,15 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
-file_handler = logging.handlers.RotatingFileHandler(
-    os.path.join(LOG_DIR, "app.log"), maxBytes=5_000_000, backupCount=3
+file_handler = logging.handlers.TimedRotatingFileHandler(
+    os.path.join(LOG_DIR, "runtime.log"),
+    when="H",
+    interval=1,
+    utc=True,
+    encoding="utf-8",
 )
+file_handler.suffix = "%Y-%m-%d-%H.json"
+file_handler.namer = lambda name: name.replace("runtime.log.", "runtime-")
 logging.basicConfig(
     level=LOG_LEVEL,
     handlers=[file_handler, logging.StreamHandler()],

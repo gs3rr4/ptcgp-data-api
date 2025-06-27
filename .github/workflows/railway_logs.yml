@@ -10,19 +10,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: Install Railway CLI
-        run: npm install -g railway
-      - name: Login to Railway
-        run: railway login --apiKey "$RAILWAY_TOKEN"
+          node-version: 'lts/*'
+      - name: Fetch logs
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      - name: Fetch logs
+          RAILWAY_SERVICE: ${{ secrets.RAILWAY_SERVICE }}
+          RAILWAY_PROJECT: ${{ secrets.RAILWAY_PROJECT }}
         run: |
           mkdir -p logs
-          railway logs --follow > logs/latest_railway.log
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          npx railway logs --service "$RAILWAY_SERVICE" --project "$RAILWAY_PROJECT" --env production --json > logs/latest_railway.log
       - uses: actions/upload-artifact@v4
         with:
           name: railway-latest-log

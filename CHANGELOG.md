@@ -39,11 +39,13 @@
 - Async tests share a session-scoped event loop.
 - Startup instructions now reference `ptcgp_api:app` and document Railway command.
 
+- Structured JSON logging using structlog with file rotation.
+- Logs now rotate hourly to `logs/runtime-YYYY-MM-DD-HH.json`.
+- CI uses `npx railway` with service and project IDs for log streaming.
+- CI now runs pre-commit and pip-audit for security scanning.
+
 ### Removed
 - Manual `sys.path` adjustments in tests; project installs as editable package.
-
-- Structured JSON logging using structlog with file rotation.
-- CI now runs pre-commit and pip-audit for security scanning.
 - Application startup creates a single AsyncClient and closes it on shutdown.
 - All user-facing errortexte sind jetzt auf Deutsch.
 - Repository moved to src/ layout.
