@@ -62,7 +62,7 @@ Weitere Details siehe `CHANGELOG.md`.
 
 ## Entwicklung
 Führe `pre-commit install` aus, um automatische Formatierung und Linting sicherzustellen.
-Logs werden strukturiert in `logs/app.log` mit Rotationsdateien geschrieben.
+Logs werden strukturiert in Dateien wie `logs/runtime-YYYY-MM-DD-HH.json` geschrieben und stündlich rotiert.
 Siehe `.env.example` für alle verfügbaren Umgebungsvariablen.
 Der CI-Workflow führt einen Snyk-Scan nur aus, wenn ein `SNYK_TOKEN` bereitsteht
 und der Pull Request aus demselben Repository stammt.
