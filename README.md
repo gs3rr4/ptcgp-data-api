@@ -25,7 +25,7 @@ uvicorn ptcgp_api:app --host 0.0.0.0 --port $PORT
 ## Umgebungsvariablen
 - `API_KEY` – aktiviert Schreibzugriffe mit `X-API-Key`
 - `ALLOW_ORIGINS` – erlaubte CORS-Ursprünge (Standard `*`)
-- `DATA_DIR` – Pfad zu den JSON-Daten (`data`)
+- `DATA_DIR` – Pfad zu den JSON-Daten (nicht im Repository enthalten)
 - `IMAGE_TIMEOUT` – Timeout für Bild-Checks (Sekunden, Standard `3`)
 - `LOG_LEVEL` – Detailgrad der Logs (`INFO`)
 - `PROFILE_FILTERS` – Dauer der Filterung ausgeben
@@ -39,6 +39,9 @@ Optionale Benchmarks:
 ```bash
 pytest --benchmark-only
 ```
+
+Die Testdaten befinden sich unter `tests/data` und können als Vorlage für
+eigene Daten genutzt werden.
 
 ## Utility Scripts
 `python scripts/summary.py` gibt die Anzahl der Karten und Sets aus.

@@ -1,4 +1,9 @@
-from ptcgp_api.data import build_search_index, filter_language
+import os
+from pathlib import Path
+
+os.environ.setdefault("DATA_DIR", str(Path(__file__).parent / "data"))
+
+from ptcgp_api.data import build_search_index, filter_language  # noqa: E402
 
 
 def test_build_search_index():

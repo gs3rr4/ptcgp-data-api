@@ -37,3 +37,5 @@ logs/
 !logs/.gitkeep
 coverage.xml
 .coverage
+/data/
+!tests/data/

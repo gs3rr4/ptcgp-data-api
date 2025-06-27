@@ -1,10 +1,13 @@
 import os
 import logging
+from pathlib import Path
 from cachetools import TTLCache
 import httpx
 import pytest
 
-import ptcgp_api.routes.cards as cards_routes
+os.environ.setdefault("DATA_DIR", str(Path(__file__).parent / "data"))
+
+import ptcgp_api.routes.cards as cards_routes  # noqa: E402
 
 pytestmark = pytest.mark.asyncio
 
